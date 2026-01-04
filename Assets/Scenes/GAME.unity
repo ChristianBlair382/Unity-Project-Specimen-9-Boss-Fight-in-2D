@@ -347,6 +347,7 @@ GameObject:
   - component: {fileID: 519420032}
   - component: {fileID: 519420031}
   - component: {fileID: 519420029}
+  - component: {fileID: 519420033}
   m_Layer: 0
   m_Name: Main_Camera
   m_TagString: MainCamera
@@ -428,6 +429,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &519420033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519420028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6244622f15bc6942ace60faf5ed2ff6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &733634379
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -526,6 +539,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f50c96348ff6eb24fa8a19c80659c347, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  timer: 0
+  hitsTaken: 0
+  SM: {fileID: 0}
+  CC: {fileID: 519420033}
+  PHM: {fileID: 0}
+  TR: {fileID: 0}
+  playerCharacterPrefab: {fileID: 8334214374344251555, guid: 2d63c7fcba71e334697c0746ca191c51, type: 3}
+  playerCharacter: {fileID: 0}
+  pauseScreen: {fileID: 0}
 --- !u!4 &981795612
 Transform:
   m_ObjectHideFlags: 0
