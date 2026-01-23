@@ -1,0 +1,57 @@
+using System.Collections;
+using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class PlayerStaminaManager : MonoBehaviour
+{
+    private GameObject player;
+    private Player playerScript;
+    public Slider staminaSlider;
+    public Slider easestaminaSlider;
+    public float 
+        maxStamina = 100f,
+        lerpSpeed = 4f;
+    private float currentStamina;
+    private bool Initialized = false;
+
+    public void InitializeWithPlayer()
+    {
+        player = GameObject.FindWithTag("Player");
+        playerScript = player.GetComponent<Player>();
+        currentStamina = maxStamina;
+        staminaSlider.maxValue = maxStamina;
+        staminaSlider.value = currentStamina;
+        easestaminaSlider.maxValue = maxStamina;
+        easestaminaSlider.value = currentStamina;
+        Initialized = true;
+    }
+    
+    void Update()
+    {
+        if(!Initialized) return;
+        currentStamina = playerScript.GetSTM();
+        if(staminaSlider.value != currentStamina)
+        {
+            staminaSlider.value = currentStamina;
+        }
+        if(staminaSlider.value != easestaminaSlider.value)
+        {
+            StartCoroutine(SmoothEaseStaminaChange());
+        }
+    }
+
+    private IEnumerator SmoothEaseStaminaChange()
+    {
+        float elapsed = 0f;
+        float startingStamina = easestaminaSlider.value;
+        while(elapsed < 1f)
+        {
+            elapsed += Time.deltaTime * lerpSpeed;
+            easestaminaSlider.value = Mathf.Lerp(startingStamina, currentStamina, elapsed);
+            yield return null;
+        }
+        easestaminaSlider.value = currentStamina;
+    }
+}
