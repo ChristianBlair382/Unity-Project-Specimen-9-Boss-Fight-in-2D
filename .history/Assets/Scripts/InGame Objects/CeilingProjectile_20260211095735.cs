@@ -41,7 +41,7 @@ public class CeilingProjectile : MonoBehaviour
             collision.gameObject.GetComponent<Player>().DamagePlayer(10);
         } else if(collision.gameObject.CompareTag("Floor"))
         {
-            Instantiate(explosionPrefab, new Vector3(transform.position.x, transform.position.y, -2.1f), Quaternion.identity);
+            Instantiate(explosionPrefab, transform.position, Quaternion.identity);
             Destroy(gameObject);
         }
     }

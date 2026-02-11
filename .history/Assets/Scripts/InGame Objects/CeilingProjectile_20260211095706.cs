@@ -14,7 +14,7 @@ public class CeilingProjectile : MonoBehaviour
     private CapsuleCollider2D col;
     public GameObject dangerZonePrefab;
     private GameObject dangerZoneInstance;
-    public GameObject explosionPrefab;
+    public 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -41,7 +41,6 @@ public class CeilingProjectile : MonoBehaviour
             collision.gameObject.GetComponent<Player>().DamagePlayer(10);
         } else if(collision.gameObject.CompareTag("Floor"))
         {
-            Instantiate(explosionPrefab, new Vector3(transform.position.x, transform.position.y, -2.1f), Quaternion.identity);
             Destroy(gameObject);
         }
     }

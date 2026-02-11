@@ -188,3 +188,4 @@ MonoBehaviour:
   stallDurationMin: 0.5
   stallDurationMax: 1.5
   dangerZonePrefab: {fileID: 2787684693338164534, guid: e4bc5c06111b0484b90e79294db72b9e, type: 3}
+  explosionPrefab: {fileID: 460739007281146908, guid: d34f47e681fb0174f9923acd46caf640, type: 3}
