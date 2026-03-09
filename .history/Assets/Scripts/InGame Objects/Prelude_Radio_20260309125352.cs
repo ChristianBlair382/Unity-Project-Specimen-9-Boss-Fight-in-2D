@@ -1,0 +1,28 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Prelude_Radio : MonoBehaviour
+{
+    public GameObject interactPromptPrefab;
+    private GameObject interactPromptInstance;
+    void Start()
+    {
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+
+        private void OnTriggerEnter2D(Collider2D collision)
+        {
+            if(collision.CompareTag("Player"))
+            {
+                interactPromptInstance = Instantiate(interactPromptPrefab, transform.position + new Vector3(0, 1.5f, 0), Quaternion.identity);
+                interactPromptInstance.transform.SetParent(transform);
+            }
+        }
+}

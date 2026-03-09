@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/PRELUDE.unity
+    guid: 37d7395277279df42b2b5660a3bdc34f
+  - enabled: 1
     path: Assets/Scenes/GAME.unity
     guid: 2cda990e2423bbf4892e6590ba056729
   m_configObjects: {}
