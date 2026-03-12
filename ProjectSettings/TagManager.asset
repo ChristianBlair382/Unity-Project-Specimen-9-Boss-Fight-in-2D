@@ -52,3 +52,6 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: DialogueCharacterSprites
+    uniqueID: 2398283873
+    locked: 0
