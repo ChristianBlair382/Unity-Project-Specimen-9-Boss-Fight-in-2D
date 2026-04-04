@@ -1,0 +1,363 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UIElements;
+
+enum PlayerPhysicalState
+{
+    Grounded = 0,
+    Airborne = 1
+}
+enum PlayerInteractionState
+{
+    Idle = 0,
+    Walking = 1,
+    Jumping = 2,
+    Attacking = 3
+}
+enum PlayerWellnessState
+{
+    Vulnerable = 0,
+    Invulnerable = 1,
+    Dead = 2
+}
+
+public class Player : MonoBehaviour
+{
+    // Player Statistics
+    [SerializeField] PlayerInteractionState interactionState = PlayerInteractionState.Idle;
+    [SerializeField] PlayerPhysicalState physicalState = PlayerPhysicalState.Airborne;
+    [SerializeField] PlayerWellnessState wellnessState = PlayerWellnessState.Vulnerable;
+    [SerializeField] private float HP = 100f;
+    [SerializeField] private float STM = 100f;
+    private float 
+        Horizontal_SPD = 4f,
+        Vertical_SPD = 8f,
+        HPRegenDelay = 4.0f,
+        STMRegenDelay = 1.0f,
+        HPRegenTimer = 0.0f,
+        STMRegenTimer = 0.0f,
+        HPRegenRate = 2f,
+        STMRegenRate = 5f;
+    private int ATK_Power = 1;
+    public Vector2 ATK_Size;
+    private bool posLock = false;
+    private bool movementLocked = false;
+    public bool canInteract = true;
+    public bool infStamina = false;
+    [SerializeField] private float iFrameTimer = 2.0f;
+    private int numOfFlashes = 20;
+
+    // Unity Components
+    private Rigidbody2D rb;
+    private SpriteRenderer spriteRend;
+    private Animator anim;
+    //[SerializeField] private Collider2D[] colliders;
+    private BoxCollider2D physicalCollider;
+    //private BoxCollider2D interactionCollider;
+    public GameObject 
+        ATKHitBoxInstance,
+        slashParticleEffectPrefab;
+    public LayerMask enemies;
+    [SerializeField] private SpriteRenderer interactionPromptRenderer;
+
+    private void Awake()
+    {
+        rb = GetComponent<Rigidbody2D>();
+        //colliders = GetComponentsInChildren<Collider2D>();
+        physicalCollider = GetComponentInChildren<BoxCollider2D>();
+        spriteRend = GetComponent<SpriteRenderer>();
+        //interactionCollider = colliders[1] as BoxCollider2D;
+        anim = GetComponent<Animator>();
+
+        if(interactionPromptRenderer != null)
+        {
+            interactionPromptRenderer.enabled = false;
+        }
+    }
+
+    private void Update()
+    {
+        if(wellnessState == PlayerWellnessState.Dead) { return; }
+
+        if(!movementLocked)
+        {
+            // Handle Movement
+            MoveHorizontal();
+            Jump();
+            // Handle Attacking
+            AttackCheck();
+        }
+
+        AnimatorUpdater();
+
+        // Handle Stat Regeneration
+        RegenerateStats();
+        // Handle Interactions
+        InteractionCheck();
+        MaintainInteractionPromptOrientation();
+    }
+
+    // Update Methods
+    private void MoveHorizontal()
+    {
+        float horizontalInput = Input.GetAxis("Horizontal");
+        if(horizontalInput != 0 && !posLock)
+        {
+            if(horizontalInput > 0)
+            {
+                transform.localScale = new Vector3(2, 2, 1);
+            }
+            else if(horizontalInput < 0)
+            {
+                transform.localScale = new Vector3(-2, 2, 1);
+            }
+            interactionState = PlayerInteractionState.Walking;
+            rb.velocity = new Vector2(horizontalInput * Horizontal_SPD, rb.velocity.y);
+        }
+        else
+        {
+            if(rb.velocity.x <= 0.01f && rb.velocity.x >= -0.01f)
+            {
+                rb.velocity = new Vector2(0, rb.velocity.y);
+                interactionState = PlayerInteractionState.Idle;
+            }
+        }
+    }
+    private void Jump()
+    {
+        if(Input.GetButtonDown("Jump") && (interactionState != PlayerInteractionState.Jumping || interactionState != PlayerInteractionState.Attacking) && physicalState == PlayerPhysicalState.Grounded && !posLock)
+        {
+            rb.AddForce(new Vector2(0, Vertical_SPD), ForceMode2D.Impulse);
+            interactionState = PlayerInteractionState.Jumping;
+            physicalState = PlayerPhysicalState.Airborne;
+        }
+    }
+    private void AttackCheck()
+    {
+        if(STM >= 25f){
+            if(Input.GetButtonDown("Fire1") && interactionState != PlayerInteractionState.Jumping && physicalState == PlayerPhysicalState.Grounded)
+            {
+                rb.velocity = new Vector2(0, 0);
+                posLock = true;
+                interactionState = PlayerInteractionState.Attacking;
+            }
+            if(Input.GetButtonUp("Fire1"))
+            {
+                if(rb.velocity.x == 0)
+                {
+                    interactionState = PlayerInteractionState.Idle;
+                } else
+                {
+                    interactionState = PlayerInteractionState.Walking;
+                }
+            }
+        }
+    }
+    private void AnimatorUpdater()
+    {
+        // Update Animator Parameters based on physicalState and interactionState
+        anim.SetInteger("physicalEnumState", (int)physicalState);
+        anim.SetInteger("interactionEnumState", (int)interactionState);
+        anim.SetInteger("x_velocity", (int)rb.velocity.x);
+        anim.SetFloat("y_velocity", rb.velocity.y);
+        anim.SetBool("leftmousebutton_active", Input.GetButton("Fire1"));
+    }
+
+    private void RegenerateStats()
+    {
+        // Health Regeneration
+        if(HP < 100f)
+        {
+            HPRegenDelay -= Time.deltaTime;
+            if(HPRegenDelay <= 0.0f)
+            {
+                HPRegenTimer += Time.deltaTime;
+                if(HPRegenTimer >= 0.5f)
+                {
+                    HP += HPRegenRate;
+                    if(HP > 100f)
+                    {
+                        HP = 100f;
+                    }
+                    HPRegenTimer = 0.0f;
+                }
+            }
+        }
+
+        // Stamina Regeneration
+        if(STM < 100f)
+        {
+            STMRegenDelay -= Time.deltaTime;
+            if(STMRegenDelay <= 0.0f)
+            {
+                STMRegenTimer += Time.deltaTime;
+                if(STMRegenTimer >= 0.25f)
+                {
+                    STM += STMRegenRate;
+                    if(STM > 100f)
+                    {
+                        STM = 100f;
+                    }
+                    STMRegenTimer = 0.0f;
+                }
+            }
+        }
+    }
+
+    private void InteractionCheck()
+    {
+        if(!movementLocked && physicalState == PlayerPhysicalState.Grounded && (interactionState == PlayerInteractionState.Idle || interactionState == PlayerInteractionState.Walking))
+        {
+            canInteract = true;
+        }
+        else
+        {
+            canInteract = false;
+        }
+    }
+
+    public void SetMovementLocked(bool locked)
+    {
+        movementLocked = locked;
+        if(locked)
+        {
+            rb.velocity = new Vector2(0, rb.velocity.y);
+            posLock = false;
+        }
+    }
+
+    // Action Methods
+    private void AxeAttack()
+    {
+        Collider2D[] enemy = Physics2D.OverlapBoxAll(ATKHitBoxInstance.transform.position, ATK_Size, enemies);
+
+        foreach(Collider2D enemyGameObject in enemy)
+        {
+            if (enemyGameObject.tag == "Minion")
+            {
+                enemyGameObject.GetComponent<Minion>().DamageEnemy(ATK_Power);
+                enemyGameObject.GetComponent<Minion>().Knockback(transform.localScale.x);
+            } else if (enemyGameObject.tag == "Specimen9")
+            {
+                enemyGameObject.GetComponent<Specimen_9>().DamageEnemy(ATK_Power);
+
+            } else if (enemyGameObject.tag == "VolleyOrb")
+            {
+                enemyGameObject.GetComponent<VolleyOrb>().ReflectOrb();
+            }
+        }
+        if(!infStamina)
+            STM -= 10f;
+            STMRegenDelay = 0.5f;
+    }
+    // Other Methods
+    private void UnlockPosition()
+    {
+        posLock = false;
+    }
+
+    // Keep the prompt's world orientation stable when the player flips via localScale.
+    private void MaintainInteractionPromptOrientation()
+    {
+        if(interactionPromptRenderer == null)
+        {
+            return;
+        }
+
+        Transform promptTransform = interactionPromptRenderer.transform;
+        if(promptTransform == transform)
+        {
+            return;
+        }
+
+        Vector3 promptLocalScale = promptTransform.localScale;
+        float desiredX = transform.localScale.x < 0f ? -Mathf.Abs(promptLocalScale.x) : Mathf.Abs(promptLocalScale.x);
+        if(!Mathf.Approximately(promptLocalScale.x, desiredX))
+        {
+            promptLocalScale.x = desiredX;
+            promptTransform.localScale = promptLocalScale;
+        }
+    }
+
+    public void SetInteractionPromptVisible(bool isVisible)
+    {
+        if(interactionPromptRenderer == null)
+        {
+            return;
+        }
+
+        interactionPromptRenderer.enabled = isVisible;
+    }
+
+    public bool HasInteractionPrompt()
+    {
+        return interactionPromptRenderer != null;
+    }
+    private IEnumerator Invulnerable()
+    {
+        gameObject.layer = LayerMask.NameToLayer("Intangible");
+        for(int i = 0; i < numOfFlashes; i++)
+        {
+            spriteRend.color = new Color(0, 0, 0, 0.0f);
+            yield return new WaitForSeconds( iFrameTimer / (numOfFlashes * 4) );
+            spriteRend.color = Color.white;
+            yield return new WaitForSeconds( iFrameTimer / (numOfFlashes * 4) );
+        }
+        gameObject.layer = LayerMask.NameToLayer("Player");
+        wellnessState = PlayerWellnessState.Vulnerable;
+    }
+    public void DamagePlayer(int DMG) 
+    {
+        HP -= DMG;
+        HPRegenDelay = 4.0f;
+        posLock = false;
+        Debug.Log("Player took " + DMG + " damage.");
+        if(HP <= 0) 
+        {
+            gameObject.layer = LayerMask.NameToLayer("Intangible");
+            wellnessState = PlayerWellnessState.Dead;
+            Debug.Log("Player has died.");
+        } else {
+            anim.SetTrigger("damaged");
+            wellnessState = PlayerWellnessState.Invulnerable;
+            StartCoroutine(Invulnerable());
+        }
+    }
+
+    private IEnumerator Spawn
+
+    //FETCH AND SET METHODS
+    public float GetHP()
+    {
+        return HP;
+    }
+    public float GetSTM()
+    {
+        return STM;
+    }
+    private void SetHP(float newHP)
+    {
+        HP = newHP;
+    }
+    private void SetSTM(float newSTM)
+    {
+        STM = newSTM;
+    }
+
+    // Collision Methods
+    // Using Collision methods for simplicity; can be optimized with Raycasts or GroundCheck objects
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if(collision.gameObject.CompareTag("Floor"))
+        {
+            //interactionState = PlayerInteractionState.Idle;
+            physicalState = PlayerPhysicalState.Grounded;
+        }
+    }
+    
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawWireCube(ATKHitBoxInstance.transform.position, ATK_Size);
+    }
+}

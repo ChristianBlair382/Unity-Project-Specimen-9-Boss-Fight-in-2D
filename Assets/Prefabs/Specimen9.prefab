@@ -56,12 +56,17 @@ MonoBehaviour:
   transitionDuration: 1
   leftBound: -10
   rightBound: 10
+  isStunned: 0
   player: {fileID: 0}
   volleyOrbPrefab: {fileID: 7343090696600060508, guid: 4e3413bc353482b41af6957b12c84742, type: 3}
   minionPrefab: {fileID: 3478935995425451579, guid: 65e3ce6e8451252419e910668a57212e, type: 3}
   bodyPillarPrefab: {fileID: 4063087670836758040, guid: 4022a0b06581cdc48be0d265444e4bd5, type: 3}
   handWavePrefab: {fileID: 6228079816731208685, guid: ec8c3bd5074cec047893825cb2019867, type: 3}
   ceilingProjectilePrefab: {fileID: 3672840723548428853, guid: 32f5fcd1b4d11604c9baea2f3736898f, type: 3}
+  explosionParticleEffectPrefab: {fileID: 5827260824980843928, guid: c1e3bc33229ab1b4cb5f612ad0ec00c8, type: 3}
+  slashParticleEffectPrefab: {fileID: 8343557836247065602, guid: 52163e5f6b061864988c43212525e210, type: 3}
+  chunkExplosionPrefab: {fileID: 460739007281146908, guid: 967d7961f1ae3ff4bae343d837753dbf, type: 3}
+  volleyWindupPrefab: {fileID: 460739007281146908, guid: aebc9451d817f2d49887f1e1a1efc8ce, type: 3}
 --- !u!50 &3717021558107939306
 Rigidbody2D:
   serializedVersion: 4

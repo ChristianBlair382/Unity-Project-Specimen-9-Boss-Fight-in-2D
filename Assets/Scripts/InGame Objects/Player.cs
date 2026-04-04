@@ -44,6 +44,7 @@ public class Player : MonoBehaviour
     private bool posLock = false;
     private bool movementLocked = false;
     public bool canInteract = true;
+    public bool infStamina = false;
     [SerializeField] private float iFrameTimer = 2.0f;
     private int numOfFlashes = 20;
 
@@ -54,9 +55,13 @@ public class Player : MonoBehaviour
     //[SerializeField] private Collider2D[] colliders;
     private BoxCollider2D physicalCollider;
     //private BoxCollider2D interactionCollider;
-    public GameObject ATKHitBoxInstance;
+    public GameObject 
+        ATKHitBoxInstance,
+        chunkParticleEffectPrefab,
+        slashParticleEffectPrefab;
     public LayerMask enemies;
     [SerializeField] private SpriteRenderer interactionPromptRenderer;
+    private Vector3 ParticleEffectOrientationTransform;
 
     private void Awake()
     {
@@ -93,6 +98,7 @@ public class Player : MonoBehaviour
         // Handle Interactions
         InteractionCheck();
         MaintainInteractionPromptOrientation();
+        ParticleEffectOrientationTransform = new Vector3(transform.position.x + Random.Range(-0.5f, 0.5f), transform.position.y + Random.Range(-0.5f, 0.5f), transform.position.z - 1.0f);
     }
 
     // Update Methods
@@ -231,21 +237,26 @@ public class Player : MonoBehaviour
 
         foreach(Collider2D enemyGameObject in enemy)
         {
+            Vector3 particleEffectPosition = new Vector3(enemyGameObject.transform.position.x, enemyGameObject.transform.position.y, enemyGameObject.transform.position.z - 1.0f);
             if (enemyGameObject.tag == "Minion")
             {
+                StartCoroutine(SpawnParticleEffectOnObject(slashParticleEffectPrefab, particleEffectPosition));
                 enemyGameObject.GetComponent<Minion>().DamageEnemy(ATK_Power);
                 enemyGameObject.GetComponent<Minion>().Knockback(transform.localScale.x);
             } else if (enemyGameObject.tag == "Specimen9")
             {
+                StartCoroutine(SpawnParticleEffectOnObject(slashParticleEffectPrefab, particleEffectPosition));
+                StartCoroutine(SpawnParticleEffectOnObject(chunkParticleEffectPrefab, particleEffectPosition));
                 enemyGameObject.GetComponent<Specimen_9>().DamageEnemy(ATK_Power);
+
             } else if (enemyGameObject.tag == "VolleyOrb")
             {
                 enemyGameObject.GetComponent<VolleyOrb>().ReflectOrb();
             }
         }
-
-        STM -= 10f;
-        STMRegenDelay = 0.5f;
+        if(!infStamina)
+            STM -= 10f;
+            STMRegenDelay = 0.5f;
     }
     // Other Methods
     private void UnlockPosition()
@@ -319,6 +330,20 @@ public class Player : MonoBehaviour
             wellnessState = PlayerWellnessState.Invulnerable;
             StartCoroutine(Invulnerable());
         }
+    }
+
+    private IEnumerator SpawnParticleEffect(GameObject prefab, Vector3 position)
+    {
+        // Spawn particle effect at the given position
+        Instantiate(prefab, position, Quaternion.identity);
+        yield return null;
+    }
+
+    private IEnumerator SpawnParticleEffectOnObject(GameObject prefab, Vector3 objPosition)
+    {
+        // Spawn particle effect on another object (e.g., enemy hit)
+        Instantiate(prefab, objPosition, Quaternion.identity);
+        yield return null;
     }
 
     //FETCH AND SET METHODS

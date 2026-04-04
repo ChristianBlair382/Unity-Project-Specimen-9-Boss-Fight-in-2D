@@ -246,8 +246,11 @@ MonoBehaviour:
   STM: 100
   ATK_Size: {x: 1, y: 2.5}
   canInteract: 1
+  infStamina: 0
   iFrameTimer: 1.5
   ATKHitBoxInstance: {fileID: 8130649418640494343}
+  chunkParticleEffectPrefab: {fileID: 460739007281146908, guid: 967d7961f1ae3ff4bae343d837753dbf, type: 3}
+  slashParticleEffectPrefab: {fileID: 8343557836247065602, guid: 52163e5f6b061864988c43212525e210, type: 3}
   enemies:
     serializedVersion: 2
     m_Bits: 128

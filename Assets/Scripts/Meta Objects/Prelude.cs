@@ -5,6 +5,7 @@ using UnityEngine;
 public class Prelude : MonoBehaviour
 {
     //STATISTICS
+    private debugMode debug = debugMode.OFF;
     [SerializeField] private Transform playerSpawnTransform;
 
     //META OBJECTS
@@ -14,6 +15,8 @@ public class Prelude : MonoBehaviour
     //PREFABS AND INSTANCES
     public GameObject playerCharacterPrefab;
     public GameObject playerCharacter;
+    public GameObject explosion_Small;
+    public GameObject explosionPrefabInstance;
 
     private Player playerScript;
     // Start is called before the first frame update
@@ -27,7 +30,29 @@ public class Prelude : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        /*
+        if(Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            if(debug == debugMode.OFF) 
+            { 
+                debug = debugMode.ON;
+                Debug.Log("Debug Mode ON");
+            }
+            else if (debug == debugMode.ON)
+            { 
+                debug = debugMode.OFF; 
+                Debug.Log("Debug Mode OFF");
+            }
+        }
+        */
+
+        if(debug == debugMode.ON)
+        {
+            if (Input.GetKeyDown(KeyCode.Q))
+            {
+                Instantiate(explosionPrefabInstance, playerCharacter.transform.position, Quaternion.identity);
+            }
+        }
     }
     
     private void SpawnPlayer()

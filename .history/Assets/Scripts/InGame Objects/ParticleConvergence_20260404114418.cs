@@ -1,0 +1,24 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class ParticleConvergence : MonoBehaviour
+{
+    public Transform target;
+    public float speed = 5f;
+
+    private ParticleSystem ps;
+    private ParticleSystem.Particle[] particles;
+
+    void Start()
+    {
+        ps = GetComponent<ParticleSystem>();
+        particles = new ParticleSystem.Particle[ps.main.maxParticles];
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+}

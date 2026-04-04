@@ -1134,8 +1134,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
+  m_Sprite: {fileID: 21300000, guid: d76e826e541ac8f4193b5a1274e7ae5b, type: 3}
+  m_Type: 2
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -1490,6 +1490,8 @@ MonoBehaviour:
   CC: {fileID: 0}
   playerCharacterPrefab: {fileID: 8334214374344251555, guid: 2d63c7fcba71e334697c0746ca191c51, type: 3}
   playerCharacter: {fileID: 0}
+  explosion_Small: {fileID: 0}
+  explosionPrefabInstance: {fileID: 5827260824980843928, guid: c1e3bc33229ab1b4cb5f612ad0ec00c8, type: 3}
 --- !u!1 &1446091645
 GameObject:
   m_ObjectHideFlags: 0
@@ -2456,7 +2458,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 540, y: -154}
+  m_AnchoredPosition: {x: 540, y: -140}
   m_SizeDelta: {x: 64, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!95 &1950813359

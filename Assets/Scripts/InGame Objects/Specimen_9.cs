@@ -37,13 +37,17 @@ public class Specimen_9 : MonoBehaviour
     private Rigidbody rb;
     private BoxCollider2D bc;
     private SpriteRenderer spriteRend;
+    private Vector3 ParticleEffectOrientationTransform;
     [SerializeField] private GameObject 
         player,
         volleyOrbPrefab,
         minionPrefab,
         bodyPillarPrefab,
         handWavePrefab,
-        ceilingProjectilePrefab;
+        ceilingProjectilePrefab,
+        explosionParticleEffectPrefab,
+        chunkExplosionPrefab,
+        volleyWindupPrefab;
     
     void Start()
     {
@@ -57,6 +61,7 @@ public class Specimen_9 : MonoBehaviour
 
     void Update()
     {
+        ParticleEffectOrientationTransform = new Vector3(transform.position.x + Random.Range(-0.5f, 0.5f), transform.position.y + Random.Range(-0.5f, 0.5f), transform.position.z - 1.0f);
         if (currentState == InteractionState.Stunned)
         {
             stunTimer -= Time.deltaTime;
@@ -136,7 +141,9 @@ public class Specimen_9 : MonoBehaviour
             yield return null;
         }
         
-        yield return new WaitForSeconds(3.0f);
+        // After minions are defeated, enable volley attack windup particle effects for a few seconds before performing the volley attack
+        Instantiate(volleyWindupPrefab, new Vector3(transform.position.x, transform.position.y, transform.position.z - 1.0f), Quaternion.identity);
+        yield return new WaitForSeconds(6.0f);
         if (currentState == InteractionState.Stunned) yield break;
         
         // Perform volley attack
@@ -276,6 +283,7 @@ public class Specimen_9 : MonoBehaviour
         bc.size = new Vector2(1, 0.692f);
         bc.offset = new Vector2(0f, 0f);
         animator.SetTrigger("stunned");
+        player.GetComponent<Player>().infStamina = true;
         StartCoroutine(StunTransition(transitionDuration));
     }
     private IEnumerator StunTransition(float duration)
@@ -301,6 +309,7 @@ public class Specimen_9 : MonoBehaviour
     private IEnumerator RecoveryTransition(float duration)
     {
         isStunned = false;
+        player.GetComponent<Player>().infStamina = false;
         //When the stun timer ends, Specimen 9 will lerp back to its original position
         yield return StartCoroutine(LerpToPosition(new Vector3(transform.position.x, 1.5f, transform.position.z), duration));
         //Pause briefly at the top before lerping to a random horizontal position
@@ -332,6 +341,7 @@ public class Specimen_9 : MonoBehaviour
             }
             else 
             {
+                StartCoroutine(SpriteShake(0.2f, 0.05f));
                 StartCoroutine(DamageFlicker());
             }
         }
@@ -344,13 +354,38 @@ public class Specimen_9 : MonoBehaviour
         Physics2D.IgnoreLayerCollision(6, 7, true);
         for(int i = 0; i < numOfIFlashes; i++)
         {
-            spriteRend.color = new Color(1.0f, 0.0f, 0.0f, 0.5f);
+            spriteRend.color = new Color(1.0f, 0.0f, 0.0f, 0.25f);
             yield return new WaitForSeconds( 1 / numOfIFlashes );
+            // Invert Sprite color to create a flashing effect
             spriteRend.color = Color.white;
             yield return new WaitForSeconds( 1 / numOfIFlashes );
         }
         Physics2D.IgnoreLayerCollision(6, 7, false);
         currentWellness = WellnessState.Vulnerable;
+    }
+
+    private IEnumerator SpawnParticleEffect(GameObject prefab, Vector3 position)
+    {
+        // Spawn particle effect at the given position
+        Instantiate(prefab, position, Quaternion.identity);
+        yield return null;
+    }
+
+    private IEnumerator SpriteShake(float duration, float magnitude)
+    {
+        // Shake the sprite to indicate damage
+        Vector3 originalPos = transform.position;
+        float elapsed = 0.0f;
+
+        while (elapsed < duration)
+        {
+            float offsetX = Random.Range(-1f, 1f) * magnitude;
+            float offsetY = Random.Range(-1f, 1f) * magnitude;
+            transform.position = new Vector3(originalPos.x + offsetX, originalPos.y + offsetY, originalPos.z);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        transform.position = originalPos;
     }
     
     private void Dead()
@@ -365,6 +400,12 @@ public class Specimen_9 : MonoBehaviour
     {
         // Specimen 9 death animation
         spriteRend.color = new Color(1.0f, 0.0f, 0.0f, 1.0f);
+        StartCoroutine(SpriteShake(5.0f, 0.2f));
+        for(int i = 0; i < 5; i++)
+        {
+            Instantiate(explosionParticleEffectPrefab, ParticleEffectOrientationTransform, Quaternion.identity);
+            yield return new WaitForSeconds(0.3f);
+        }
         yield return new WaitForSeconds(3f);
         Destroy(gameObject);
         Debug.Log("Specimen 9 Defeated!");

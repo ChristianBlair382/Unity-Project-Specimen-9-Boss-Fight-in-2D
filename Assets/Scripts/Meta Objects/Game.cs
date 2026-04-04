@@ -52,6 +52,7 @@ public class Game : MonoBehaviour
 
     void Update()
     {
+        /*
         if(Input.GetKeyDown(KeyCode.LeftShift))
         {
             if(debug == debugMode.OFF) 
@@ -65,6 +66,7 @@ public class Game : MonoBehaviour
                 Debug.Log("Debug Mode OFF");
             }
         }
+        */
 
         if(debug == debugMode.ON)
         {

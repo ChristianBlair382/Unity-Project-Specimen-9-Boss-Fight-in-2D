@@ -200,6 +200,8 @@ MonoBehaviour:
   DeathAnimDuration: 0.75
   hurtboxcol: {fileID: 8729092766635506784}
   hitboxcol: {fileID: 6806132001042214616}
+  player: {fileID: 0}
+  slashParticleEffectPrefab: {fileID: 8343557836247065602, guid: 52163e5f6b061864988c43212525e210, type: 3}
 --- !u!1 &5354397285538213277
 GameObject:
   m_ObjectHideFlags: 0

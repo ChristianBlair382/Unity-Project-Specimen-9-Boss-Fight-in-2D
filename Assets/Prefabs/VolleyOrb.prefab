@@ -151,6 +151,9 @@ MonoBehaviour:
   currentState: 0
   movementSpeed: 4
   lifetime: 3
+  knockbackMultiplier: 1.5
+  player: {fileID: 0}
+  explosionEffectPrefab: {fileID: 5827260824980843928, guid: c1e3bc33229ab1b4cb5f612ad0ec00c8, type: 3}
 --- !u!58 &1990235302646533522
 CircleCollider2D:
   m_ObjectHideFlags: 0
