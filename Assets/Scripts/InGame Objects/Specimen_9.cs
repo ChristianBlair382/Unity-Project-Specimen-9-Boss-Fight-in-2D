@@ -20,9 +20,9 @@ public class Specimen_9 : MonoBehaviour
 {
     private InteractionState currentState = InteractionState.Waiting;
     private WellnessState currentWellness = WellnessState.Invulnerable;
-    private int 
-        HP = 60,
-        numOfIFlashes = 10;
+    public int HP = 60;
+    private int numOfIFlashes = 10;
+    
     [SerializeField] private float 
         stateTimer = 0f,
         stunTimer = 0f,

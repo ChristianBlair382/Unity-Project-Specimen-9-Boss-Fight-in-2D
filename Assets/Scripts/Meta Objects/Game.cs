@@ -23,6 +23,7 @@ public class Game : MonoBehaviour
     public PlayerHealthManager PHM;
     public PlayerStaminaManager PSM;
     public TimerRenderer TR;
+    public VictoryTransition VictoryTransition;
 
     //PREFABS AND INSTANCES
     public GameObject playerCharacterPrefab;
@@ -92,10 +93,25 @@ public class Game : MonoBehaviour
             }
         }
         
+        if(state == gameState.PAUSED)
+        {
+            //PAUSE MENU LOGIC
+        }
+
+        if(specimen9Script.HP <= 0)
+        {
+            state = gameState.OVER;
+        }
 
         if(state == gameState.PLAYING)
         {
             timer += Time.deltaTime;
+        }
+
+        if(state == gameState.OVER)
+        {
+            StartCoroutine(PlayVictoryTransition());
+            //SC.LoadVictoryScene();
         }
     }
 
@@ -110,5 +126,12 @@ public class Game : MonoBehaviour
     {
         GameObject specimen9 = Instantiate(specimen9Prefab, specimen9SpawnTransform.position, Quaternion.identity);
         specimen9Script = specimen9.GetComponent<Specimen_9>();
+    }
+
+    private IEnumerator PlayVictoryTransition()
+    {
+        //Play transition animation
+        yield return new WaitForSeconds(2.0f);
+        VictoryTransition.animator.SetTrigger("begin");
     }
 }
