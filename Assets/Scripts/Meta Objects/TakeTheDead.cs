@@ -9,6 +9,11 @@ public class TakeTheDead : DisruptionEffect
     private GameObject 
         teleportPoint,
         respawnPoint;
+    
+    [SerializeField]
+    private float
+        hrzntlVelocity = 7.1f,
+        vrtclVelocity = -4.0f;
     private SpriteRenderer spriteRenderer;
     private Rigidbody2D rb;
     void Start()
@@ -20,7 +25,7 @@ public class TakeTheDead : DisruptionEffect
 
     void Update()
     {
-        rb.velocity = new Vector2(0.0f, 0.0f);
+        rb.velocity = new Vector2(hrzntlVelocity, vrtclVelocity);
         if(activeTimer > 0.0f)
         {
             spriteRenderer.color = new Color(1.0f, 1.0f, 1.0f, 0.20f);
@@ -28,12 +33,11 @@ public class TakeTheDead : DisruptionEffect
             {
                 gameObject.transform.position = respawnPoint.transform.position;
             }
-            if (activeTimer <= 0)
-            {
-                activeTimer = 0.0f;
-                spriteRenderer.color = new Color(1.0f, 1.0f, 1.0f, 0.0f);
-            }
             activeTimer -= Time.deltaTime;
+        } else
+        {
+            activeTimer = 0.0f;
+            spriteRenderer.color = new Color(1.0f, 1.0f, 1.0f, 0.0f);
         }
     }
 }

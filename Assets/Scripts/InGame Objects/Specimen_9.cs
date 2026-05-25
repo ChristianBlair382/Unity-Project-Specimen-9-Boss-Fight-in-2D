@@ -21,6 +21,7 @@ public class Specimen_9 : MonoBehaviour
     private InteractionState currentState = InteractionState.Waiting;
     private WellnessState currentWellness = WellnessState.Invulnerable;
     public int HP = 60;
+    public int maxHP = 60;
     private int numOfIFlashes = 10;
     
     [SerializeField] private float 
@@ -72,12 +73,16 @@ public class Specimen_9 : MonoBehaviour
                 bc.offset = new Vector2(-0.01f, .029f);
                 currentState = InteractionState.Waiting;
             }
-        } else
+        } else if (currentWellness == WellnessState.Dead)
+        {
+            // If Specimen 9 is dead, do not perform any actions
+            return;
+        }
         {
             PerformAttackSequence();
+            FlipTowardsPlayer();
+            animator.SetFloat("stun_timer", stunTimer);
         }
-        FlipTowardsPlayer();
-        animator.SetFloat("stun_timer", stunTimer);
     }
     private void FlipTowardsPlayer()
     {
@@ -135,7 +140,7 @@ public class Specimen_9 : MonoBehaviour
                 yield return StartCoroutine(PerformAttack(4));
                 if (currentState == InteractionState.Stunned) yield break;
                 
-                yield return new WaitForSeconds(1.0f);
+                yield return new WaitForSeconds(5.0f);
                 if (currentState == InteractionState.Stunned) yield break;
             }
             yield return null;
@@ -192,7 +197,13 @@ public class Specimen_9 : MonoBehaviour
                 yield return StartCoroutine(BodyPillarAttack());
                 break;
             case 3:
-                yield return StartCoroutine(SummonMinionsAttack(3));
+                if(HP <= maxHP / 2) // If HP is below half, summon more minions
+                {
+                    yield return StartCoroutine(SummonMinionsAttack(5));
+                } else
+                {
+                    yield return StartCoroutine(SummonMinionsAttack(3));
+                }
                 break;
             case 4:
                 yield return StartCoroutine(HandWaveAttack());
@@ -266,16 +277,17 @@ public class Specimen_9 : MonoBehaviour
         {
             direction = -1;
         }
-        while (currentPositionX > leftBound && currentPositionX < rightBound)
+        while (i < 8)
         {
-            Instantiate(handWavePrefab, new Vector3(currentPositionX + (direction * (2*i)), -2.1f, -1f), Quaternion.identity);
+            Instantiate(handWavePrefab, new Vector3(currentPositionX + (direction * (2*i)), -3.2f, -1f), Quaternion.identity);
             i += 1;
-            yield return new WaitForSeconds(1.0f);
+            yield return new WaitForSeconds(0.25f);
         }
     }
     public void Stun()
     {
         // Called when Specimen 9 is hit by a reflected volley orb
+        StartCoroutine(StunTransition(transitionDuration));
         stunTimer = stunDuration;
         isStunned = true;
         currentState = InteractionState.Stunned;
@@ -284,7 +296,13 @@ public class Specimen_9 : MonoBehaviour
         bc.offset = new Vector2(0f, 0f);
         animator.SetTrigger("stunned");
         player.GetComponent<Player>().infStamina = true;
-        StartCoroutine(StunTransition(transitionDuration));
+        GameObject.Find("HitIndicator").GetComponent<Animator>().SetTrigger("begin");
+        
+        // Disable all disruption screen effects
+        Game gameInstance = GameObject.Find("Game").GetComponent<Game>();
+        gameInstance.staticEffect.activeTimer = 0f;
+        gameInstance.bloodDripEffect.animator.speed = 0f;
+        gameInstance.takeTheDeadEffect.activeTimer = 0f;
     }
     private IEnumerator StunTransition(float duration)
     {
@@ -390,6 +408,7 @@ public class Specimen_9 : MonoBehaviour
     
     private void Dead()
     {
+        currentWellness = WellnessState.Dead;
         // Disable collider to prevent further interactions
         bc.enabled = false;
         // Play death animation coroutine
@@ -401,12 +420,14 @@ public class Specimen_9 : MonoBehaviour
         // Specimen 9 death animation
         spriteRend.color = new Color(1.0f, 0.0f, 0.0f, 1.0f);
         StartCoroutine(SpriteShake(5.0f, 0.2f));
-        for(int i = 0; i < 5; i++)
+        for(int i = 0; i < 10; i++)
         {
             Instantiate(explosionParticleEffectPrefab, ParticleEffectOrientationTransform, Quaternion.identity);
+            StartCoroutine(SpawnParticleEffect(chunkExplosionPrefab, ParticleEffectOrientationTransform));
+            spriteRend.color = new Color(1.0f, 0.0f, 0.0f, 1.0f - (i * 0.1f));
             yield return new WaitForSeconds(0.3f);
         }
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(0.5f);
         Destroy(gameObject);
         Debug.Log("Specimen 9 Defeated!");
     }

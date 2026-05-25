@@ -16,6 +16,7 @@ public class Game : MonoBehaviour
     [SerializeField] private Transform specimen9SpawnTransform;
     public float timer = 0.0f;
     public int hitsTaken = 0;
+    private float disruptionTimer = 10.0f;
 
     //META OBJECTS
     public SceneController SC;
@@ -24,6 +25,12 @@ public class Game : MonoBehaviour
     public PlayerStaminaManager PSM;
     public TimerRenderer TR;
     public VictoryTransition VictoryTransition;
+    public Static staticEffect;
+    public BloodDrip bloodDripEffect;
+    public TakeTheDead takeTheDeadEffect;
+    public HitIndicator hitIndicatorEffect;
+    [SerializeField]
+    public Canvas GUICanvas;
 
     //PREFABS AND INSTANCES
     public GameObject playerCharacterPrefab;
@@ -68,28 +75,47 @@ public class Game : MonoBehaviour
             }
         }
         */
-
         if(debug == debugMode.ON)
         {
             if (Input.GetKeyDown(KeyCode.Q))
             {
-                Instantiate(volleyOrbPrefab, new Vector3(10, 0, -2), Quaternion.identity);
+                //Instantiate(volleyOrbPrefab, new Vector3(10, 0, -2), Quaternion.identity);
+                if(playerScript.infHealth)
+                {
+                    playerScript.infHealth = false;
+                    Debug.Log("inf Health OFF");
+                }
+                else
+                {
+                    playerScript.infHealth = true;
+                    Debug.Log("inf Health ON");
+                }
             }
             if(Input.GetKeyDown(KeyCode.W))
             {
-                Instantiate(ceilingProjectilePrefab, new Vector3(playerCharacter.transform.position.x, 6, -2), Quaternion.identity);
+                //Instantiate(ceilingProjectilePrefab, new Vector3(playerCharacter.transform.position.x, 6, -2), Quaternion.identity);
+                //Debug.Log("Blood Drip Disruption Activated");
+                //bloodDripEffect.animator.SetTrigger("begin");
+                Debug.Log("Specimen 9 HP Halved");
+                specimen9Script.HP = specimen9Script.maxHP / 2;
             }
             if(Input.GetKeyDown(KeyCode.E))
             {
-                Instantiate(minionPrefab, new Vector3(10, 0, -1), Quaternion.identity);
+                //Instantiate(minionPrefab, new Vector3(10, 0, -1), Quaternion.identity);
+                Debug.Log("Take The Dead Disruption Activated");
+                takeTheDeadEffect.activeTimer = 5.0f;
             }
             if(Input.GetKeyDown(KeyCode.R))
             {
-                Instantiate(handWavePrefab, new Vector3(playerCharacter.transform.position.x, playerCharacter.transform.position.y - 2.1f, -1.0f), Quaternion.identity);
+                //Instantiate(handWavePrefab, new Vector3(playerCharacter.transform.position.x, playerCharacter.transform.position.y - 2.1f, -1.0f), Quaternion.identity);
+                Debug.Log("Victory Transition Activated");
+                StartCoroutine(PlayVictoryTransition());
             }
             if(Input.GetKeyDown(KeyCode.T))
             {
-                Instantiate(bodyPillarPrefab, new Vector3(playerCharacter.transform.position.x, 0, -2), Quaternion.identity);
+                //Instantiate(bodyPillarPrefab, new Vector3(playerCharacter.transform.position.x, 0, -2), Quaternion.identity);
+                Debug.Log("Hit Indicator Activated");
+                hitIndicatorEffect.animator.SetTrigger("begin");
             }
         }
         
@@ -98,20 +124,54 @@ public class Game : MonoBehaviour
             //PAUSE MENU LOGIC
         }
 
+        /*
         if(specimen9Script.HP <= 0)
         {
             state = gameState.OVER;
         }
+        */
 
         if(state == gameState.PLAYING)
         {
             timer += Time.deltaTime;
+            if(!specimen9Script.isStunned)
+            {
+                disruptionTimer -= Time.deltaTime;
+            }
+            if(disruptionTimer < 0)
+            {
+                int randomDisruption = Random.Range(0, 2);
+                switch(randomDisruption)
+                {
+                    case 0:
+                        //Debug.Log("Static Disruption Activated");
+                        staticEffect.activeTimer = Random.Range(4.0f, 8.0f);
+                        break;
+                    case 1:
+                        //Debug.Log("Blood Drip Disruption Activated");
+                        bloodDripEffect.animator.SetTrigger("begin");
+                        break;
+                    case 2:
+                        //Debug.Log("Take The Dead Disruption Activated");
+                        takeTheDeadEffect.activeTimer = Random.Range(4.0f, 8.0f);
+                        break;
+                }
+
+                if(specimen9Script.HP < specimen9Script.maxHP * 0.5f)
+                {
+                    disruptionTimer = Random.Range(4.0f, 10.0f); 
+                } else
+                {
+                    disruptionTimer = Random.Range(8.0f, 17.0f); 
+                }
+            }
         }
 
         if(state == gameState.OVER)
         {
+            GUICanvas.enabled = false;
+            playerScript.SetMovementLocked(true);
             StartCoroutine(PlayVictoryTransition());
-            //SC.LoadVictoryScene();
         }
     }
 
@@ -131,7 +191,7 @@ public class Game : MonoBehaviour
     private IEnumerator PlayVictoryTransition()
     {
         //Play transition animation
-        yield return new WaitForSeconds(2.0f);
+        yield return new WaitForSeconds(5.0f);
         VictoryTransition.animator.SetTrigger("begin");
     }
 }

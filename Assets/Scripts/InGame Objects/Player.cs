@@ -41,10 +41,13 @@ public class Player : MonoBehaviour
         STMRegenRate = 5f;
     private int ATK_Power = 1;
     public Vector2 ATK_Size;
-    private bool posLock = false;
-    private bool movementLocked = false;
-    public bool canInteract = true;
-    public bool infStamina = false;
+    private bool 
+        posLock = false;
+    public bool 
+        movementLocked = false,
+        canInteract = true,
+        infStamina = false,
+        infHealth = false;
     [SerializeField] private float iFrameTimer = 2.0f;
     private int numOfFlashes = 20;
 
@@ -226,7 +229,7 @@ public class Player : MonoBehaviour
         if(locked)
         {
             rb.velocity = new Vector2(0, rb.velocity.y);
-            posLock = false;
+            posLock = true;
         }
     }
 
@@ -316,19 +319,22 @@ public class Player : MonoBehaviour
     }
     public void DamagePlayer(int DMG) 
     {
-        HP -= DMG;
-        HPRegenDelay = 4.0f;
-        posLock = false;
-        Debug.Log("Player took " + DMG + " damage.");
-        if(HP <= 0) 
+        if(!infHealth)
         {
-            gameObject.layer = LayerMask.NameToLayer("Intangible");
-            wellnessState = PlayerWellnessState.Dead;
-            Debug.Log("Player has died.");
-        } else {
-            anim.SetTrigger("damaged");
-            wellnessState = PlayerWellnessState.Invulnerable;
-            StartCoroutine(Invulnerable());
+            HP -= DMG;
+            HPRegenDelay = 10.0f;
+            posLock = false;
+            Debug.Log("Player took " + DMG + " damage.");
+            if(HP <= 0) 
+            {
+                gameObject.layer = LayerMask.NameToLayer("Intangible");
+                wellnessState = PlayerWellnessState.Dead;
+                Debug.Log("Player has died.");
+            } else {
+                anim.SetTrigger("damaged");
+                wellnessState = PlayerWellnessState.Invulnerable;
+                StartCoroutine(Invulnerable());
+            }
         }
     }
 

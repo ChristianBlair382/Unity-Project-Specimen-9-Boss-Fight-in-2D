@@ -153,9 +153,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 1}
   m_LocalScale: {x: 4, y: 4, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 808251760}
-  - {fileID: 1229158038}
+  m_Children: []
   m_Father: {fileID: 519420032}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &62162322
@@ -170,10 +168,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 157542163f478eb4487f3a334030820d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 0}
+  target: {fileID: 62162321}
   activeTimer: 0
-  teleportPoint: {fileID: 0}
-  respawnPoint: {fileID: 0}
+  teleportPoint: {fileID: 1229158037}
+  respawnPoint: {fileID: 808251759}
+  hrzntlVelocity: 7.1
+  vrtclVelocity: -4
 --- !u!50 &62162323
 Rigidbody2D:
   serializedVersion: 4
@@ -1445,6 +1445,8 @@ Transform:
   - {fileID: 1824027867}
   - {fileID: 62162321}
   - {fileID: 477189980}
+  - {fileID: 808251760}
+  - {fileID: 1229158038}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &519420033
@@ -1958,12 +1960,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 808251759}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.55, y: 2, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -7.1, y: 4, z: 1}
+  m_LocalScale: {x: 4, y: 4, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 62162321}
+  m_Father: {fileID: 519420032}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &827217450
 GameObject:
@@ -2491,7 +2493,12 @@ MonoBehaviour:
   PHM: {fileID: 0}
   PSM: {fileID: 0}
   TR: {fileID: 0}
-  VictoryTransition: {fileID: 0}
+  VictoryTransition: {fileID: 477189981}
+  staticEffect: {fileID: 984542734}
+  bloodDripEffect: {fileID: 1824027868}
+  takeTheDeadEffect: {fileID: 62162322}
+  hitIndicatorEffect: {fileID: 1275242965}
+  GUICanvas: {fileID: 585217177}
   playerCharacterPrefab: {fileID: 8334214374344251555, guid: 2d63c7fcba71e334697c0746ca191c51, type: 3}
   playerCharacter: {fileID: 0}
   volleyOrbPrefab: {fileID: 7343090696600060508, guid: 4e3413bc353482b41af6957b12c84742, type: 3}
@@ -2560,7 +2567,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 659c3c1ebcbcff24ea32e4b122577e3b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 0}
+  target: {fileID: 984542733}
   activeTimer: 0
 --- !u!212 &984542735
 SpriteRenderer:
@@ -3059,12 +3066,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1229158037}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.55, y: -2, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 7.1, y: -4, z: 1}
+  m_LocalScale: {x: 4, y: 4, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 62162321}
+  m_Father: {fileID: 519420032}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1235832255
 GameObject:
@@ -3148,7 +3155,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5bdf5fcbc38242046806c671046846f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 0}
+  target: {fileID: 1275242964}
   animator: {fileID: 0}
 --- !u!95 &1275242966
 Animator:
@@ -3857,7 +3864,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5ea8b7cdd465bd4aabc0d8b7f52f3db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 0}
+  target: {fileID: 1824027867}
   animator: {fileID: 0}
 --- !u!95 &1824027869
 Animator:

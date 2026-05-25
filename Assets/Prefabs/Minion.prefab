@@ -212,7 +212,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2248103651311796994}
   - component: {fileID: 8729092766635506784}
-  m_Layer: 7
+  m_Layer: 3
   m_Name: Physical Collision Box
   m_TagString: Physical Box
   m_Icon: {fileID: 0}

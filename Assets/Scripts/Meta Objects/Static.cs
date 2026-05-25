@@ -36,13 +36,12 @@ public class Static : DisruptionEffect
                         break;
                 }
             }
-            if (activeTimer <= 0)
-            {
-                activeTimer = 0.0f;
-                spriteRenderer.color = new Color(1.0f, 1.0f, 1.0f, 0.0f);
-            }
             rotationTimer -= Time.deltaTime;
             activeTimer -= Time.deltaTime;
+        } else
+        {
+            activeTimer = 0.0f;
+            spriteRenderer.color = new Color(1.0f, 1.0f, 1.0f, 0.0f);
         }
     }
 }
