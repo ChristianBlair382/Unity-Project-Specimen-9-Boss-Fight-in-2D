@@ -296,10 +296,10 @@ public class Specimen_9 : MonoBehaviour
         bc.offset = new Vector2(0f, 0f);
         animator.SetTrigger("stunned");
         player.GetComponent<Player>().infStamina = true;
-        GameObject.Find("HitIndicator").GetComponent<Animator>().SetTrigger("begin");
         
-        // Disable all disruption screen effects
-        Game gameInstance = GameObject.Find("Game").GetComponent<Game>();
+        // Disable all disruption screen effects and trigger hit indicator
+        Game gameInstance = GameObject.Find("Game_Manager").GetComponent<Game>();
+        gameInstance.hitIndicatorEffect.animator.SetTrigger("begin");
         gameInstance.staticEffect.activeTimer = 0f;
         gameInstance.bloodDripEffect.animator.speed = 0f;
         gameInstance.takeTheDeadEffect.activeTimer = 0f;
@@ -328,13 +328,15 @@ public class Specimen_9 : MonoBehaviour
     {
         isStunned = false;
         player.GetComponent<Player>().infStamina = false;
+        
+        // Restore disruption effects
+        Game gameInstance = GameObject.Find("Game").GetComponent<Game>();
+        gameInstance.bloodDripEffect.animator.speed = 1f;
+        
         //When the stun timer ends, Specimen 9 will lerp back to its original position
         yield return StartCoroutine(LerpToPosition(new Vector3(transform.position.x, 1.5f, transform.position.z), duration));
         //Pause briefly at the top before lerping to a random horizontal position
         yield return new WaitForSeconds(0.5f);
-        // After lerping back up, lerp to a random horizontal position within bounds
-        //float randomX = Random.Range(leftBound, rightBound);
-        //yield return StartCoroutine(LerpToPosition(new Vector3(randomX, 1.5f, transform.position.z), duration));
     }
 
     // Other Methods
