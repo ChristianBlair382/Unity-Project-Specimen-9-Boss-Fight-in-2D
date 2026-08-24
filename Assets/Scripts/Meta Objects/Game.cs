@@ -31,6 +31,7 @@ public class Game : MonoBehaviour
     public HitIndicator hitIndicatorEffect;
     [SerializeField]
     public Canvas GUICanvas;
+    public Canvas GameOverCanvas;
 
     //PREFABS AND INSTANCES
     public GameObject playerCharacterPrefab;
@@ -124,12 +125,10 @@ public class Game : MonoBehaviour
             //PAUSE MENU LOGIC
         }
 
-        /*
-        if(specimen9Script.HP <= 0)
+        if(specimen9Script.HP <= 0 || playerScript.GetHP() <= 0)
         {
             state = gameState.OVER;
         }
-        */
 
         if(state == gameState.PLAYING)
         {
@@ -169,9 +168,15 @@ public class Game : MonoBehaviour
 
         if(state == gameState.OVER)
         {
-            GUICanvas.enabled = false;
-            playerScript.SetMovementLocked(true);
-            StartCoroutine(PlayVictoryTransition());
+            if(playerScript.GetHP() <= 0)
+            {
+                
+            } else
+            {
+                GUICanvas.enabled = false;
+                playerScript.SetMovementLocked(true);
+                StartCoroutine(PlayVictoryTransition());
+            }
         }
     }
 

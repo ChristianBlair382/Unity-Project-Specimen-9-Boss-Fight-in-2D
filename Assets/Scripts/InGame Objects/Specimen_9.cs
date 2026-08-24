@@ -38,6 +38,7 @@ public class Specimen_9 : MonoBehaviour
     private Rigidbody rb;
     private BoxCollider2D bc;
     private SpriteRenderer spriteRend;
+    public Game gameInstance;
     private Vector3 ParticleEffectOrientationTransform;
     [SerializeField] private GameObject 
         player,
@@ -57,6 +58,7 @@ public class Specimen_9 : MonoBehaviour
         bc = GetComponent<BoxCollider2D>();
         spriteRend = GetComponent<SpriteRenderer>();
         player = GameObject.FindGameObjectWithTag("Player");
+        gameInstance = GameObject.Find("Game_Manager").GetComponent<Game>();
         stateTimer = waitDuration;
     }
 
@@ -326,11 +328,11 @@ public class Specimen_9 : MonoBehaviour
 
     private IEnumerator RecoveryTransition(float duration)
     {
+        currentWellness = WellnessState.Invulnerable;
         isStunned = false;
         player.GetComponent<Player>().infStamina = false;
         
         // Restore disruption effects
-        Game gameInstance = GameObject.Find("Game").GetComponent<Game>();
         gameInstance.bloodDripEffect.animator.speed = 1f;
         
         //When the stun timer ends, Specimen 9 will lerp back to its original position
