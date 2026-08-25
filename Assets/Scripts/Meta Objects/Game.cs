@@ -29,9 +29,12 @@ public class Game : MonoBehaviour
     public BloodDrip bloodDripEffect;
     public TakeTheDead takeTheDeadEffect;
     public HitIndicator hitIndicatorEffect;
-    [SerializeField]
+
     public Canvas GUICanvas;
-    public Canvas GameOverCanvas;
+    public Animator GameOverCanvas;
+    public Canvas VictoryText;
+    public Canvas FailureText;
+    public Canvas GameOverButtons;
 
     //PREFABS AND INSTANCES
     public GameObject playerCharacterPrefab;
@@ -57,6 +60,9 @@ public class Game : MonoBehaviour
         PHM.InitializeWithPlayer();
         PSM.InitializeWithPlayer();
         SpawnSpecimen9();
+        
+        VictoryText.enabled = false;
+        GameOverButtons.enabled = false;
     }
 
     void Update()
@@ -170,7 +176,9 @@ public class Game : MonoBehaviour
         {
             if(playerScript.GetHP() <= 0)
             {
-                
+                GUICanvas.enabled = false;
+                playerScript.SetMovementLocked(true);
+                StartCoroutine(PlayFailureTransition());
             } else
             {
                 GUICanvas.enabled = false;
@@ -193,10 +201,39 @@ public class Game : MonoBehaviour
         specimen9Script = specimen9.GetComponent<Specimen_9>();
     }
 
+    public void OnPlayAgainButton()
+    {
+        VictoryText.enabled = false;
+        GameOverButtons.enabled = false;
+        SC.ReloadCurrentScene();
+    }
+
+    public void OnMainMenuButton()
+    {
+        VictoryText.enabled = false;
+        GameOverButtons.enabled = false;
+        SC.LoadFirstScene();
+    }
+
     private IEnumerator PlayVictoryTransition()
     {
-        //Play transition animation
         yield return new WaitForSeconds(5.0f);
         VictoryTransition.animator.SetTrigger("begin");
+        yield return new WaitForSeconds(1.0f);
+        VictoryText.enabled = true;
+        yield return new WaitForSeconds(1.0f);
+        GameOverButtons.enabled = true;
+    }
+
+    private IEnumerator PlayFailureTransition()
+    {
+        //Play Game Over animation
+        //then, display Game Over Canvas and buttons
+        yield return new WaitForSeconds(5.0f);
+        GameOverCanvas.SetTrigger("begin");
+        yield return new WaitForSeconds(1.0f);
+        FailureText.enabled = true;
+        yield return new WaitForSeconds(1.0f);
+        GameOverButtons.enabled = true;
     }
 }

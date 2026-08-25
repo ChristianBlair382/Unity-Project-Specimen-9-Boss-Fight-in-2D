@@ -23,6 +23,16 @@ public class SceneController : MonoBehaviour
         StartCoroutine(LoadSceneWithDelay(SceneManager.GetActiveScene().buildIndex + 1, transitionTime));
     }
 
+    public void ReloadCurrentScene()
+    {
+        StartCoroutine(LoadSceneWithDelay(SceneManager.GetActiveScene().buildIndex, transitionTime));
+    }
+
+    public void LoadFirstScene()
+    {
+        StartCoroutine(LoadSceneWithDelay(0, transitionTime));
+    }
+
     private IEnumerator LoadSceneWithDelay(int sceneIndex, float delay)
     {
         //Play transition animation
