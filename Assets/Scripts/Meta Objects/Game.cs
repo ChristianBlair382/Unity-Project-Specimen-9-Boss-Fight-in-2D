@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public enum debugMode { ON, OFF }
 
@@ -32,8 +34,15 @@ public class Game : MonoBehaviour
 
     public Canvas GUICanvas;
     public Animator GameOverCanvas;
-    public Canvas VictoryText;
-    public Canvas FailureText;
+    public TMP_Text VictoryText;
+    public TMP_Text FailureText;
+    public TMP_Text TimeLabel;
+    public TMP_Text ClearTime;
+    public TMP_Text HitsTakenLabel;
+    public TMP_Text HitsTakenValue;
+    public TMP_Text RankLabel;
+    public Animator RLOAnimator;
+    public TMP_Text RankLetter;
     public Canvas GameOverButtons;
 
     //PREFABS AND INSTANCES
@@ -52,6 +61,7 @@ public class Game : MonoBehaviour
 
     void Start()
     {
+        SC = GameObject.Find("Scene_Controller").GetComponent<SceneController>();
         CC = GameObject.Find("Main_Camera").GetComponent<CameraController>();
         PHM = GameObject.Find("PlayerHealthBar").GetComponent<PlayerHealthManager>();
         PSM = GameObject.Find("PlayerStaminaBar").GetComponent<PlayerStaminaManager>();
@@ -62,12 +72,19 @@ public class Game : MonoBehaviour
         SpawnSpecimen9();
         
         VictoryText.enabled = false;
+        FailureText.enabled = false;
+        TimeLabel.enabled = false;
+        ClearTime.enabled = false;
+        HitsTakenLabel.enabled = false;
+        HitsTakenValue.enabled = false;
+        RankLabel.enabled = false;
+        RankLetter.enabled = false;
         GameOverButtons.enabled = false;
     }
 
     void Update()
     {
-        /*
+        
         if(Input.GetKeyDown(KeyCode.LeftShift))
         {
             if(debug == debugMode.OFF) 
@@ -81,7 +98,7 @@ public class Game : MonoBehaviour
                 Debug.Log("Debug Mode OFF");
             }
         }
-        */
+        
         if(debug == debugMode.ON)
         {
             if (Input.GetKeyDown(KeyCode.Q))
@@ -104,7 +121,7 @@ public class Game : MonoBehaviour
                 //Debug.Log("Blood Drip Disruption Activated");
                 //bloodDripEffect.animator.SetTrigger("begin");
                 Debug.Log("Specimen 9 HP Halved");
-                specimen9Script.HP = specimen9Script.maxHP / 2;
+                specimen9Script.HP /= 2;
             }
             if(Input.GetKeyDown(KeyCode.E))
             {
@@ -215,25 +232,72 @@ public class Game : MonoBehaviour
         SC.LoadFirstScene();
     }
 
+    public string CalculateClearTime(float time)
+    {
+        int minutes = (int)(time / 60f);
+        if(minutes > 99) { minutes = 99; }
+        int seconds = (int)(time % 60f);
+        string final_str = "";
+        if(minutes < 10){ final_str += "0" + minutes.ToString(); } else { final_str += minutes.ToString(); }
+        final_str += ":";
+        if(seconds < 10){ final_str += "0" + seconds.ToString(); } else { final_str += seconds.ToString(); }
+        return final_str;
+    }
+
     private IEnumerator PlayVictoryTransition()
     {
         yield return new WaitForSeconds(5.0f);
         VictoryTransition.animator.SetTrigger("begin");
+
+        //Show Victory Screen Assest
         yield return new WaitForSeconds(1.0f);
         VictoryText.enabled = true;
         yield return new WaitForSeconds(1.0f);
+        TimeLabel.enabled = true;
+        yield return new WaitForSeconds(1.0f);
+        ClearTime.enabled = true;
+        ClearTime.text = CalculateClearTime(timer);
+        yield return new WaitForSeconds(1.0f);
+        HitsTakenLabel.enabled = true;
+        yield return new WaitForSeconds(1.0f);
+        HitsTakenValue.enabled = true;
+        HitsTakenValue.text = playerScript.GetHitsTaken().ToString();
+        yield return new WaitForSeconds(1.0f);
+        RankLabel.enabled = true;
+        yield return new WaitForSeconds(1.0f);
+        RankLetter.enabled = true;
+        if(RankLetter.text == "C")
+        {
+            RankLetter.faceColor = new Color(0.8415094f, 0.4460191f, 0.1444856f, 1.0f);
+        } else if (RankLetter.text == "B")
+        {
+            RankLetter.faceColor = new Color(0.7056604f, 0.7056604f, 0.7056604f, 1.0f);
+        } else if (RankLetter.text == "A")
+        {
+            RankLetter.faceColor = new Color(0.9924528f, 0.843533f, 0.1778924f, 1.0f);
+        } else if (RankLetter.text == "S")
+        {
+            RLOAnimator.SetTrigger("begin");
+        }
+
+        //Show Game Over Buttons
+        yield return new WaitForSeconds(3.0f);
         GameOverButtons.enabled = true;
     }
 
     private IEnumerator PlayFailureTransition()
     {
-        //Play Game Over animation
-        //then, display Game Over Canvas and buttons
+        //Play Game Over Animation
+
+
+        //Show Game Over Dimming Canvas and Text
         yield return new WaitForSeconds(5.0f);
         GameOverCanvas.SetTrigger("begin");
         yield return new WaitForSeconds(1.0f);
         FailureText.enabled = true;
-        yield return new WaitForSeconds(1.0f);
+
+        //Show Game Over Buttons
+        yield return new WaitForSeconds(3.0f);
         GameOverButtons.enabled = true;
     }
 }

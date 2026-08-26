@@ -39,7 +39,9 @@ public class Player : MonoBehaviour
         STMRegenTimer = 0.0f,
         HPRegenRate = 2f,
         STMRegenRate = 5f;
-    private int ATK_Power = 1;
+    private int 
+        ATK_Power = 1,
+        numOfFlashes = 20;
     public Vector2 ATK_Size;
     private bool 
         posLock = false;
@@ -49,7 +51,7 @@ public class Player : MonoBehaviour
         infStamina = false,
         infHealth = false;
     [SerializeField] private float iFrameTimer = 2.0f;
-    private int numOfFlashes = 20;
+    public int hits_taken = 0;
 
     // Unity Components
     private Rigidbody2D rb;
@@ -322,9 +324,11 @@ public class Player : MonoBehaviour
         if(!infHealth)
         {
             HP -= DMG;
+            hits_taken++;
             HPRegenDelay = 10.0f;
             posLock = false;
-            Debug.Log("Player took " + DMG + " damage.");
+            //Debug Message
+            //Debug.Log("Player took " + DMG + " damage.");
             if(HP <= 0) 
             {
                 gameObject.layer = LayerMask.NameToLayer("Intangible");
@@ -353,22 +357,11 @@ public class Player : MonoBehaviour
     }
 
     //FETCH AND SET METHODS
-    public float GetHP()
-    {
-        return HP;
-    }
-    public float GetSTM()
-    {
-        return STM;
-    }
-    private void SetHP(float newHP)
-    {
-        HP = newHP;
-    }
-    private void SetSTM(float newSTM)
-    {
-        STM = newSTM;
-    }
+    public float GetHP(){ return HP; }
+    public float GetSTM(){ return STM; }
+    public int GetHitsTaken(){ return hits_taken; }
+    private void SetHP(float newHP){ HP = newHP; }
+    private void SetSTM(float newSTM){ STM = newSTM; }
 
     // Collision Methods
     // Using Collision methods for simplicity; can be optimized with Raycasts or GroundCheck objects

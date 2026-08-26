@@ -65,7 +65,7 @@ public class Specimen_9 : MonoBehaviour
     void Update()
     {
         ParticleEffectOrientationTransform = new Vector3(transform.position.x + Random.Range(-0.5f, 0.5f), transform.position.y + Random.Range(-0.5f, 0.5f), transform.position.z - 1.0f);
-        if (currentState == InteractionState.Stunned)
+        if (currentState == InteractionState.Stunned && currentWellness == WellnessState.Vulnerable)
         {
             stunTimer -= Time.deltaTime;
             if (stunTimer <= 0)
@@ -77,9 +77,9 @@ public class Specimen_9 : MonoBehaviour
             }
         } else if (currentWellness == WellnessState.Dead)
         {
-            // If Specimen 9 is dead, do not perform any actions
+            stunTimer = 1;
             return;
-        }
+        } else
         {
             PerformAttackSequence();
             FlipTowardsPlayer();
