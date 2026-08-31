@@ -44,6 +44,8 @@ public class Game : MonoBehaviour
     public Animator RLOAnimator;
     public TMP_Text RankLetter;
     public Canvas GameOverButtons;
+    public GameObject PauseButton;
+    public Canvas PauseCanvas;
 
     //PREFABS AND INSTANCES
     public GameObject playerCharacterPrefab;
@@ -80,6 +82,7 @@ public class Game : MonoBehaviour
         RankLabel.enabled = false;
         RankLetter.enabled = false;
         GameOverButtons.enabled = false;
+        PauseCanvas.enabled = false;
     }
 
     void Update()
@@ -142,19 +145,27 @@ public class Game : MonoBehaviour
                 hitIndicatorEffect.animator.SetTrigger("begin");
             }
         }
-        
-        if(state == gameState.PAUSED)
-        {
-            //PAUSE MENU LOGIC
-        }
 
         if(specimen9Script.HP <= 0 || playerScript.GetHP() <= 0)
         {
             state = gameState.OVER;
         }
 
+        if(state == gameState.PAUSED)
+        {
+            if (Input.GetKeyDown(KeyCode.Escape) )
+            {
+                OnResumeButton();
+            }
+        }
+
         if(state == gameState.PLAYING)
         {
+            Time.timeScale = 1;
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                OnPauseButton();
+            }
             timer += Time.deltaTime;
             if(!specimen9Script.isStunned)
             {
@@ -193,13 +204,16 @@ public class Game : MonoBehaviour
         {
             if(playerScript.GetHP() <= 0)
             {
+                PauseButton.SetActive(false);
                 GUICanvas.enabled = false;
                 playerScript.SetMovementLocked(true);
                 StartCoroutine(PlayFailureTransition());
             } else
             {
+                PauseButton.SetActive(false);
                 GUICanvas.enabled = false;
                 playerScript.SetMovementLocked(true);
+                RankLetter.SetText(AssessRank(playerScript.GetHitsTaken()));
                 StartCoroutine(PlayVictoryTransition());
             }
         }
@@ -220,6 +234,9 @@ public class Game : MonoBehaviour
 
     public void OnPlayAgainButton()
     {
+        Time.timeScale = 1;
+        GUICanvas.enabled = false;
+        PauseCanvas.enabled = false;
         VictoryText.enabled = false;
         GameOverButtons.enabled = false;
         SC.ReloadCurrentScene();
@@ -227,9 +244,30 @@ public class Game : MonoBehaviour
 
     public void OnMainMenuButton()
     {
+        Time.timeScale = 1;
+        GUICanvas.enabled = false;
+        PauseCanvas.enabled = false;
         VictoryText.enabled = false;
         GameOverButtons.enabled = false;
         SC.LoadFirstScene();
+    }
+
+    public void OnPauseButton()
+    {
+        PauseButton.SetActive(false);
+        GUICanvas.enabled = false;
+        PauseCanvas.enabled = true;
+        Time.timeScale = 0;
+        state = gameState.PAUSED;
+    }
+
+    public void OnResumeButton()
+    {
+        PauseButton.SetActive(true);
+        GUICanvas.enabled = true;
+        PauseCanvas.enabled = false;
+        Time.timeScale = 1;
+        state = gameState.PLAYING;
     }
 
     public string CalculateClearTime(float time)
@@ -242,6 +280,28 @@ public class Game : MonoBehaviour
         final_str += ":";
         if(seconds < 10){ final_str += "0" + seconds.ToString(); } else { final_str += seconds.ToString(); }
         return final_str;
+    }
+
+    private string AssessRank(int hitsTaken)
+    {
+        string assignedRank;
+        if (hitsTaken <= 0)
+        {
+            assignedRank = "S";
+        } else if (hitsTaken <= 3)
+        {
+            assignedRank = "A";
+        } else if (hitsTaken <= 7)
+        {
+            assignedRank = "B";
+        } else if (hitsTaken <= 14)
+        {
+            assignedRank = "C";
+        } else
+        {
+            assignedRank = "D";
+        }
+        return assignedRank;
     }
 
     private IEnumerator PlayVictoryTransition()
@@ -278,6 +338,9 @@ public class Game : MonoBehaviour
         } else if (RankLetter.text == "S")
         {
             RLOAnimator.SetTrigger("begin");
+        } else
+        {
+            RankLetter.faceColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
         }
 
         //Show Game Over Buttons
