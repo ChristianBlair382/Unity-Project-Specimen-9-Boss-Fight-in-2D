@@ -64,26 +64,29 @@ public class Specimen_9 : MonoBehaviour
 
     void Update()
     {
-        ParticleEffectOrientationTransform = new Vector3(transform.position.x + Random.Range(-0.5f, 0.5f), transform.position.y + Random.Range(-0.5f, 0.5f), transform.position.z - 1.0f);
-        if (currentState == InteractionState.Stunned && currentWellness == WellnessState.Vulnerable)
+        if(gameInstance.state != gameState.OVER)
         {
-            stunTimer -= Time.deltaTime;
-            if (stunTimer <= 0)
+            ParticleEffectOrientationTransform = new Vector3(transform.position.x + Random.Range(-0.5f, 0.5f), transform.position.y + Random.Range(-0.5f, 0.5f), transform.position.z - 1.0f);
+            if (currentState == InteractionState.Stunned && currentWellness == WellnessState.Vulnerable)
             {
-                StartCoroutine(RecoveryTransition(transitionDuration));
-                bc.size = new Vector2(.35f, 1f);
-                bc.offset = new Vector2(-0.01f, .029f);
-                currentState = InteractionState.Waiting;
+                stunTimer -= Time.deltaTime;
+                if (stunTimer <= 0)
+                {
+                    StartCoroutine(RecoveryTransition(transitionDuration));
+                    bc.size = new Vector2(.35f, 1f);
+                    bc.offset = new Vector2(-0.01f, .029f);
+                    currentState = InteractionState.Waiting;
+                }
+            } else if (currentWellness == WellnessState.Dead)
+            {
+                stunTimer = 1;
+                return;
+            } else
+            {
+                PerformAttackSequence();
+                FlipTowardsPlayer();
+                animator.SetFloat("stun_timer", stunTimer);
             }
-        } else if (currentWellness == WellnessState.Dead)
-        {
-            stunTimer = 1;
-            return;
-        } else
-        {
-            PerformAttackSequence();
-            FlipTowardsPlayer();
-            animator.SetFloat("stun_timer", stunTimer);
         }
     }
     private void FlipTowardsPlayer()
@@ -100,50 +103,50 @@ public class Specimen_9 : MonoBehaviour
     {
         // The attack cycle will follow this sequence of attacks
         yield return new WaitForSeconds(1.0f);
-        if (currentState == InteractionState.Stunned) yield break;
+        if (currentState == InteractionState.Stunned || gameInstance.state == gameState.OVER ) yield break;
         float randomX = Random.Range(leftBound, rightBound);
         yield return StartCoroutine(LerpToPosition(new Vector3(randomX, 1.5f, transform.position.z), transitionDuration));
-        if (currentState == InteractionState.Stunned) yield break;
+        if (currentState == InteractionState.Stunned || gameInstance.state == gameState.OVER ) yield break;
         
         yield return new WaitForSeconds(1.0f);
-        if (currentState == InteractionState.Stunned) yield break;
+        if (currentState == InteractionState.Stunned || gameInstance.state == gameState.OVER ) yield break;
         
         // Perform a random number of ceiling drop attacks
         for(int i = 0; i < Random.Range(1, 4); i++)
         {
             yield return StartCoroutine(PerformAttack(1));
-            if (currentState == InteractionState.Stunned) yield break;
+            if (currentState == InteractionState.Stunned || gameInstance.state == gameState.OVER ) yield break;
             
             yield return new WaitForSeconds(5.0f);
-            if (currentState == InteractionState.Stunned) yield break;
+            if (currentState == InteractionState.Stunned || gameInstance.state == gameState.OVER ) yield break;
         }
         
         // Perform body pillar attacks
         yield return StartCoroutine(PerformAttack(2));
-        if (currentState == InteractionState.Stunned) yield break;
+        if (currentState == InteractionState.Stunned || gameInstance.state == gameState.OVER ) yield break;
         
         yield return new WaitForSeconds(6.0f);
-        if (currentState == InteractionState.Stunned) yield break;
+        if (currentState == InteractionState.Stunned || gameInstance.state == gameState.OVER ) yield break;
         
         // Summon minions
         yield return StartCoroutine(PerformAttack(3));
-        if (currentState == InteractionState.Stunned) yield break;
+        if (currentState == InteractionState.Stunned || gameInstance.state == gameState.OVER ) yield break;
         
         yield return new WaitForSeconds(5.0f);
-        if (currentState == InteractionState.Stunned) yield break;
+        if (currentState == InteractionState.Stunned || gameInstance.state == gameState.OVER ) yield break;
         
         // Wait until all minions are dead before resuming attack cycle
         while(GameObject.FindGameObjectsWithTag("Minion").Length > 0)
         {
-            if (currentState == InteractionState.Stunned) yield break;
+            if (currentState == InteractionState.Stunned || gameInstance.state == gameState.OVER ) yield break;
             
             if(HP <= 30) //If HP is below half, perform hand wave attacks while waiting
             {
                 yield return StartCoroutine(PerformAttack(4));
-                if (currentState == InteractionState.Stunned) yield break;
+                if (currentState == InteractionState.Stunned || gameInstance.state == gameState.OVER ) yield break;
                 
                 yield return new WaitForSeconds(5.0f);
-                if (currentState == InteractionState.Stunned) yield break;
+                if (currentState == InteractionState.Stunned || gameInstance.state == gameState.OVER ) yield break;
             }
             yield return null;
         }
@@ -151,15 +154,15 @@ public class Specimen_9 : MonoBehaviour
         // After minions are defeated, enable volley attack windup particle effects for a few seconds before performing the volley attack
         Instantiate(volleyWindupPrefab, new Vector3(transform.position.x, transform.position.y, transform.position.z - 1.0f), Quaternion.identity);
         yield return new WaitForSeconds(6.0f);
-        if (currentState == InteractionState.Stunned) yield break;
+        if (currentState == InteractionState.Stunned || gameInstance.state == gameState.OVER ) yield break;
         
         // Perform volley attack
         yield return StartCoroutine(PerformAttack(0));
-        if (currentState == InteractionState.Stunned) yield break;
+        if (currentState == InteractionState.Stunned || gameInstance.state == gameState.OVER ) yield break;
         
         // After completing the attack sequence, return to waiting state
         yield return new WaitForSeconds(5.0f);
-        if (currentState == InteractionState.Stunned) yield break;
+        if (currentState == InteractionState.Stunned || gameInstance.state == gameState.OVER ) yield break;
         
         currentState = InteractionState.Waiting;
     }

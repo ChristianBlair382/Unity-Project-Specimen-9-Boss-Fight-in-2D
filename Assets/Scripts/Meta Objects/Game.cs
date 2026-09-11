@@ -13,12 +13,14 @@ public class Game : MonoBehaviour
 {
     //STATISTICS
     private debugMode debug = debugMode.OFF;
-    private gameState state;
+    public gameState state;
     [SerializeField] private Transform playerSpawnTransform;
     [SerializeField] private Transform specimen9SpawnTransform;
     public float timer = 0.0f;
     public int hitsTaken = 0;
     private float disruptionTimer = 10.0f;
+    private float splashEffectTimer = 1.0f;
+    private float splashEffectTimerThreshold = 1.0f;
 
     //META OBJECTS
     public SceneController SC;
@@ -46,6 +48,8 @@ public class Game : MonoBehaviour
     public Canvas GameOverButtons;
     public GameObject PauseButton;
     public Canvas PauseCanvas;
+    public GameObject GameOverFailureSplashScreen;
+    public GameObject TTDGameOverSplashEffect;
 
     //PREFABS AND INSTANCES
     public GameObject playerCharacterPrefab;
@@ -59,6 +63,7 @@ public class Game : MonoBehaviour
     
     private Player playerScript;
     private Specimen_9 specimen9Script;
+    private Rigidbody2D TTDOverlayRigidbody; 
     //private GameObject pauseScreen;
 
     void Start()
@@ -67,6 +72,7 @@ public class Game : MonoBehaviour
         CC = GameObject.Find("Main_Camera").GetComponent<CameraController>();
         PHM = GameObject.Find("PlayerHealthBar").GetComponent<PlayerHealthManager>();
         PSM = GameObject.Find("PlayerStaminaBar").GetComponent<PlayerStaminaManager>();
+        TTDOverlayRigidbody = TTDGameOverSplashEffect.GetComponent<Rigidbody2D>();
 
         SpawnPlayer();
         PHM.InitializeWithPlayer();
@@ -83,6 +89,7 @@ public class Game : MonoBehaviour
         RankLetter.enabled = false;
         GameOverButtons.enabled = false;
         PauseCanvas.enabled = false;
+        GameOverFailureSplashScreen.SetActive(false);
     }
 
     void Update()
@@ -207,6 +214,8 @@ public class Game : MonoBehaviour
                 PauseButton.SetActive(false);
                 GUICanvas.enabled = false;
                 playerScript.SetMovementLocked(true);
+                GameOverFailureSplashScreen.SetActive(true);
+                PlayFailureEffects();
                 StartCoroutine(PlayFailureTransition());
             } else
             {
@@ -257,6 +266,7 @@ public class Game : MonoBehaviour
         PauseButton.SetActive(false);
         GUICanvas.enabled = false;
         PauseCanvas.enabled = true;
+        playerScript.movementLocked = true;
         Time.timeScale = 0;
         state = gameState.PAUSED;
     }
@@ -266,6 +276,7 @@ public class Game : MonoBehaviour
         PauseButton.SetActive(true);
         GUICanvas.enabled = true;
         PauseCanvas.enabled = false;
+        playerScript.movementLocked = false;
         Time.timeScale = 1;
         state = gameState.PLAYING;
     }
@@ -350,11 +361,8 @@ public class Game : MonoBehaviour
 
     private IEnumerator PlayFailureTransition()
     {
-        //Play Game Over Animation
-
-
         //Show Game Over Dimming Canvas and Text
-        yield return new WaitForSeconds(5.0f);
+        yield return new WaitForSeconds(8.0f);
         GameOverCanvas.SetTrigger("begin");
         yield return new WaitForSeconds(1.0f);
         FailureText.enabled = true;
@@ -362,5 +370,21 @@ public class Game : MonoBehaviour
         //Show Game Over Buttons
         yield return new WaitForSeconds(3.0f);
         GameOverButtons.enabled = true;
+    }
+
+    private void PlayFailureEffects()
+    {
+        //Play Game Over Animation
+        if(TTDGameOverSplashEffect.transform.position.y < -0.49f)
+        {
+            TTDGameOverSplashEffect.transform.position = new Vector3(TTDGameOverSplashEffect.transform.position.x, 0.49f, TTDGameOverSplashEffect.transform.position.z);
+        }
+        TTDOverlayRigidbody.velocity = new Vector2(0f, -1f);
+        splashEffectTimer += Time.deltaTime;
+        if(splashEffectTimer >= splashEffectTimerThreshold)
+        {
+            hitIndicatorEffect.animator.SetTrigger("begin");
+            splashEffectTimer = 0.0f;
+        }
     }
 }
