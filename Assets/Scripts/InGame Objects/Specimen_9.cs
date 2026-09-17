@@ -66,7 +66,6 @@ public class Specimen_9 : MonoBehaviour
     {
         if(gameInstance.state != gameState.OVER)
         {
-            ParticleEffectOrientationTransform = new Vector3(transform.position.x + Random.Range(-0.5f, 0.5f), transform.position.y + Random.Range(-0.5f, 0.5f), transform.position.z - 1.0f);
             if (currentState == InteractionState.Stunned && currentWellness == WellnessState.Vulnerable)
             {
                 stunTimer -= Time.deltaTime;
@@ -88,6 +87,7 @@ public class Specimen_9 : MonoBehaviour
                 animator.SetFloat("stun_timer", stunTimer);
             }
         }
+        ParticleEffectOrientationTransform = new Vector3(transform.position.x + Random.Range(-0.5f, 0.5f), transform.position.y + Random.Range(-0.5f, 0.5f), transform.position.z - 1.0f);
     }
     private void FlipTowardsPlayer()
     {
@@ -307,6 +307,7 @@ public class Specimen_9 : MonoBehaviour
         gameInstance.hitIndicatorEffect.animator.SetTrigger("begin");
         gameInstance.staticEffect.activeTimer = 0f;
         gameInstance.bloodDripEffect.animator.speed = 0f;
+        gameInstance.bloodDripEffect.animator.Play("BloodDrip_Wait", -1, 0f);
         gameInstance.takeTheDeadEffect.activeTimer = 0f;
     }
     private IEnumerator StunTransition(float duration)

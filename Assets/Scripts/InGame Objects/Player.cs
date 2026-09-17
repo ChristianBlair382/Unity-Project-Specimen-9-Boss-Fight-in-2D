@@ -342,6 +342,23 @@ public class Player : MonoBehaviour
         }
     }
 
+    public void LookUpAnim()
+    {
+        anim.SetTrigger("gameovervictorytrigger");
+        StartCoroutine(RotateOnInterval());
+    }
+
+    private IEnumerator RotateOnInterval()
+    {
+        for(int i = 0; i < 6; i++)
+        {
+            yield return new WaitForSeconds(0.5f);
+            transform.rotation = Quaternion.Euler(transform.rotation.x, 180f, transform.rotation.z);
+            yield return new WaitForSeconds(0.5f);
+            transform.rotation = Quaternion.Euler(transform.rotation.x, 0f, transform.rotation.z);
+        }
+    }
+
     private IEnumerator SpawnParticleEffect(GameObject prefab, Vector3 position)
     {
         // Spawn particle effect at the given position

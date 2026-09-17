@@ -21,6 +21,7 @@ public class Game : MonoBehaviour
     private float disruptionTimer = 10.0f;
     private float splashEffectTimer = 1.0f;
     private float splashEffectTimerThreshold = 1.0f;
+    private bool GameOverStateTriggered = false;
 
     //META OBJECTS
     public SceneController SC;
@@ -50,6 +51,8 @@ public class Game : MonoBehaviour
     public Canvas PauseCanvas;
     public GameObject GameOverFailureSplashScreen;
     public GameObject TTDGameOverSplashEffect;
+    public GameObject ceilingCrumbleParticleEffect;
+    public GameObject TTDGameOverSplashEffectResetPoint;
 
     //PREFABS AND INSTANCES
     public GameObject playerCharacterPrefab;
@@ -60,6 +63,7 @@ public class Game : MonoBehaviour
     public GameObject bodyPillarPrefab;
     public GameObject minionPrefab;
     public GameObject specimen9Prefab;
+    public GameObject ceilingCrumbleParticleEffectPrefab;
     
     private Player playerScript;
     private Specimen_9 specimen9Script;
@@ -151,6 +155,12 @@ public class Game : MonoBehaviour
                 Debug.Log("Hit Indicator Activated");
                 hitIndicatorEffect.animator.SetTrigger("begin");
             }
+            if(Input.GetKeyDown(KeyCode.Y))
+            {
+                //Instantiate(bodyPillarPrefab, new Vector3(playerCharacter.transform.position.x, 0, -2), Quaternion.identity);
+                Debug.Log("Camera Shake Triggered");
+                CC.StartCameraShake(2f, 0.05f);
+            }
         }
 
         if(specimen9Script.HP <= 0 || playerScript.GetHP() <= 0)
@@ -209,21 +219,33 @@ public class Game : MonoBehaviour
 
         if(state == gameState.OVER)
         {
-            if(playerScript.GetHP() <= 0)
+            if(!GameOverStateTriggered)
             {
-                PauseButton.SetActive(false);
-                GUICanvas.enabled = false;
-                playerScript.SetMovementLocked(true);
-                GameOverFailureSplashScreen.SetActive(true);
-                PlayFailureEffects();
-                StartCoroutine(PlayFailureTransition());
+                if(playerScript.GetHP() <= 0)
+                {
+                    PauseButton.SetActive(false);
+                    GUICanvas.enabled = false;
+                    playerScript.SetMovementLocked(true);
+                    GameOverFailureSplashScreen.SetActive(true);
+                    PlayFailureEffects();
+                    StartCoroutine(PlayFailureTransition());
+                } else
+                {
+                    PauseButton.SetActive(false);
+                    GUICanvas.enabled = false;
+                    playerScript.SetMovementLocked(true);
+                    RankLetter.SetText(AssessRank(playerScript.GetHitsTaken()));
+                    StartCoroutine(PlayVictoryTransition());
+                }
+                GameOverStateTriggered = true;
+                Debug.Log("Game Over state triggered.");
             } else
             {
-                PauseButton.SetActive(false);
-                GUICanvas.enabled = false;
-                playerScript.SetMovementLocked(true);
-                RankLetter.SetText(AssessRank(playerScript.GetHitsTaken()));
-                StartCoroutine(PlayVictoryTransition());
+                if(TTDGameOverSplashEffect.transform.position.y < TTDGameOverSplashEffectResetPoint.transform.position.y)
+                {
+                    TTDGameOverSplashEffect.transform.position = new Vector3(TTDGameOverSplashEffect.transform.position.x, 1f, TTDGameOverSplashEffect.transform.position.z);
+                }
+                Debug.Log("Game Over state has already triggered.");
             }
         }
     }
@@ -318,6 +340,10 @@ public class Game : MonoBehaviour
     private IEnumerator PlayVictoryTransition()
     {
         yield return new WaitForSeconds(5.0f);
+        CC.StartCameraShake(6f, 0.05f);
+        ceilingCrumbleParticleEffect = Instantiate(ceilingCrumbleParticleEffectPrefab, new Vector3(CC.currentX, CC.currentY + 5f, -9f), Quaternion.identity);
+        playerScript.LookUpAnim();
+        yield return new WaitForSeconds(5.0f);
         VictoryTransition.animator.SetTrigger("begin");
 
         //Show Victory Screen Assest
@@ -375,10 +401,6 @@ public class Game : MonoBehaviour
     private void PlayFailureEffects()
     {
         //Play Game Over Animation
-        if(TTDGameOverSplashEffect.transform.position.y < -0.49f)
-        {
-            TTDGameOverSplashEffect.transform.position = new Vector3(TTDGameOverSplashEffect.transform.position.x, 0.49f, TTDGameOverSplashEffect.transform.position.z);
-        }
         TTDOverlayRigidbody.velocity = new Vector2(0f, -1f);
         splashEffectTimer += Time.deltaTime;
         if(splashEffectTimer >= splashEffectTimerThreshold)

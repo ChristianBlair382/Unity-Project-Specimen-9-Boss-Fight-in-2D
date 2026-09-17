@@ -4,28 +4,51 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-        public Transform target;
-        public float 
+    public Transform target;
+    public float 
         minX,
         maxX,
         minY,
         maxY,
         currentX,
-        currentY;
+        currentY,
+        cameraShakeThreshold = 2f;
 
-    void Update()
+    private Vector3 shakeOffset;
+    private Coroutine shakeCoroutine;
+
+    void LateUpdate()
     {
-        if(target == null) { return; }
-        else 
-        {
-            if (target.position.x <= minX){ currentX = minX; }
-            else if (target.position.x >= maxX) { currentX = maxX; }
-            else { currentX = target.transform.position.x; }
+        if (target == null) return;
 
-            if (target.position.y <= minY){ currentY = minY; }
-            else if (target.position.y >= maxY) { currentY = maxY; }
-            else { currentY = target.transform.position.y; }
+        currentX = Mathf.Clamp(target.position.x, minX, maxX);
+        currentY = Mathf.Clamp(target.position.y, minY, maxY);
+
+        transform.position = new Vector3(currentX, currentY, -10f) + shakeOffset;
+    }
+
+    public void StartCameraShake(float duration, float magnitude)
+    {
+        if (shakeCoroutine != null)
+        {
+            StopCoroutine(shakeCoroutine);
         }
-        transform.position = new Vector3 (currentX, currentY, -10);
+
+        shakeCoroutine = StartCoroutine(CameraShake(duration, magnitude));
+    }
+
+    private IEnumerator CameraShake(float duration, float magnitude)
+    {
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            shakeOffset = Random.insideUnitCircle * magnitude;
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        shakeOffset = Vector3.zero;
+        shakeCoroutine = null;
     }
 }

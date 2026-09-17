@@ -1046,6 +1046,37 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &310751484
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 310751485}
+  m_Layer: 0
+  m_Name: TTDGameOverSplashEffectResetPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 4162164826716764455, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &310751485
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 310751484}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.49, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1367204702}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &340395989
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1754,7 +1785,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -1837,6 +1868,7 @@ MonoBehaviour:
   maxY: 0
   currentX: 0
   currentY: 0
+  cameraShakeThreshold: 2
 --- !u!1 &563779424
 GameObject:
   m_ObjectHideFlags: 0
@@ -3824,6 +3856,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f50c96348ff6eb24fa8a19c80659c347, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  state: 0
   playerSpawnTransform: {fileID: 1564356083}
   specimen9SpawnTransform: {fileID: 630686863}
   timer: 0
@@ -3854,6 +3887,8 @@ MonoBehaviour:
   PauseCanvas: {fileID: 1056480644}
   GameOverFailureSplashScreen: {fileID: 1367204701}
   TTDGameOverSplashEffect: {fileID: 1102056811}
+  ceilingCrumbleParticleEffect: {fileID: 0}
+  TTDGameOverSplashEffectResetPoint: {fileID: 310751484}
   playerCharacterPrefab: {fileID: 8334214374344251555, guid: 2d63c7fcba71e334697c0746ca191c51, type: 3}
   playerCharacter: {fileID: 0}
   volleyOrbPrefab: {fileID: 7343090696600060508, guid: 4e3413bc353482b41af6957b12c84742, type: 3}
@@ -3862,6 +3897,7 @@ MonoBehaviour:
   bodyPillarPrefab: {fileID: 4063087670836758040, guid: 4022a0b06581cdc48be0d265444e4bd5, type: 3}
   minionPrefab: {fileID: 3478935995425451579, guid: 65e3ce6e8451252419e910668a57212e, type: 3}
   specimen9Prefab: {fileID: 2208490373901244958, guid: 351d38a1400857640bdf56dd5763643a, type: 3}
+  ceilingCrumbleParticleEffectPrefab: {fileID: 5255482671407297986, guid: 594eba0a80b5f2f4796e1b1cc42cd509, type: 3}
 --- !u!4 &981795612
 Transform:
   m_ObjectHideFlags: 0
@@ -5804,6 +5840,7 @@ Transform:
   - {fileID: 352693149}
   - {fileID: 1102056812}
   - {fileID: 1227396184}
+  - {fileID: 310751485}
   m_Father: {fileID: 519420032}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1433443615
