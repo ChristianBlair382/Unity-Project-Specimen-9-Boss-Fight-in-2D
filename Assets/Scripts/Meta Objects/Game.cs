@@ -12,6 +12,7 @@ public enum gameState { PLAYING, PAUSED, OVER }
 public class Game : MonoBehaviour
 {
     //STATISTICS
+    [Header("Statistics")]
     private debugMode debug = debugMode.OFF;
     public gameState state;
     [SerializeField] private Transform playerSpawnTransform;
@@ -24,6 +25,7 @@ public class Game : MonoBehaviour
     private bool GameOverStateTriggered = false;
 
     //META OBJECTS
+    [Header("Meta Objects")]
     public SceneController SC;
     public CameraController CC;
     public PlayerHealthManager PHM;
@@ -35,6 +37,7 @@ public class Game : MonoBehaviour
     public TakeTheDead takeTheDeadEffect;
     public HitIndicator hitIndicatorEffect;
 
+    [Header("Canvas Objects")]
     public Canvas GUICanvas;
     public Animator GameOverCanvas;
     public TMP_Text VictoryText;
@@ -54,7 +57,11 @@ public class Game : MonoBehaviour
     public GameObject ceilingCrumbleParticleEffect;
     public GameObject TTDGameOverSplashEffectResetPoint;
 
+    [Header("Music Tracks")]
+    [SerializeField] private AudioClip bossMusic;
+
     //PREFABS AND INSTANCES
+    [Header("Prefabs")]
     public GameObject playerCharacterPrefab;
     public GameObject playerCharacter;
     public GameObject volleyOrbPrefab;
@@ -94,6 +101,8 @@ public class Game : MonoBehaviour
         GameOverButtons.enabled = false;
         PauseCanvas.enabled = false;
         GameOverFailureSplashScreen.SetActive(false);
+
+        SoundManager.Instance.PlayMusic(bossMusic);
     }
 
     void Update()
@@ -221,6 +230,7 @@ public class Game : MonoBehaviour
         {
             if(!GameOverStateTriggered)
             {
+                SoundManager.Instance.StopMusic();
                 if(playerScript.GetHP() <= 0)
                 {
                     PauseButton.SetActive(false);
@@ -271,6 +281,7 @@ public class Game : MonoBehaviour
         VictoryText.enabled = false;
         GameOverButtons.enabled = false;
         SC.ReloadCurrentScene();
+        SoundManager.Instance.PlaySfx("blip_2");
     }
 
     public void OnMainMenuButton()
@@ -281,6 +292,7 @@ public class Game : MonoBehaviour
         VictoryText.enabled = false;
         GameOverButtons.enabled = false;
         SC.LoadFirstScene();
+        SoundManager.Instance.PlaySfx("blip_2");
     }
 
     public void OnPauseButton()
@@ -291,6 +303,7 @@ public class Game : MonoBehaviour
         playerScript.movementLocked = true;
         Time.timeScale = 0;
         state = gameState.PAUSED;
+        SoundManager.Instance.PlaySfx("blip_2");
     }
 
     public void OnResumeButton()
@@ -301,6 +314,7 @@ public class Game : MonoBehaviour
         playerScript.movementLocked = false;
         Time.timeScale = 1;
         state = gameState.PLAYING;
+        SoundManager.Instance.PlaySfx("blip_2");
     }
 
     public string CalculateClearTime(float time)
@@ -349,20 +363,27 @@ public class Game : MonoBehaviour
         //Show Victory Screen Assest
         yield return new WaitForSeconds(1.0f);
         VictoryText.enabled = true;
+        SoundManager.Instance.PlaySfx("blip_1");
         yield return new WaitForSeconds(1.0f);
         TimeLabel.enabled = true;
+        SoundManager.Instance.PlaySfx("blip_1");
         yield return new WaitForSeconds(1.0f);
         ClearTime.enabled = true;
         ClearTime.text = CalculateClearTime(timer);
+        SoundManager.Instance.PlaySfx("blip_1");
         yield return new WaitForSeconds(1.0f);
         HitsTakenLabel.enabled = true;
+        SoundManager.Instance.PlaySfx("blip_1");
         yield return new WaitForSeconds(1.0f);
         HitsTakenValue.enabled = true;
         HitsTakenValue.text = playerScript.GetHitsTaken().ToString();
+        SoundManager.Instance.PlaySfx("blip_1");
         yield return new WaitForSeconds(1.0f);
         RankLabel.enabled = true;
+        SoundManager.Instance.PlaySfx("blip_1");
         yield return new WaitForSeconds(1.0f);
         RankLetter.enabled = true;
+        SoundManager.Instance.PlaySfx("blip_1");
         if(RankLetter.text == "C")
         {
             RankLetter.faceColor = new Color(0.8415094f, 0.4460191f, 0.1444856f, 1.0f);
@@ -392,6 +413,7 @@ public class Game : MonoBehaviour
         GameOverCanvas.SetTrigger("begin");
         yield return new WaitForSeconds(1.0f);
         FailureText.enabled = true;
+        SoundManager.Instance.PlaySfx("blip_1");
 
         //Show Game Over Buttons
         yield return new WaitForSeconds(3.0f);

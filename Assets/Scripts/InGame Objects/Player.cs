@@ -139,6 +139,7 @@ public class Player : MonoBehaviour
             rb.AddForce(new Vector2(0, Vertical_SPD), ForceMode2D.Impulse);
             interactionState = PlayerInteractionState.Jumping;
             physicalState = PlayerPhysicalState.Airborne;
+            SoundManager.Instance.PlaySfx("jump");
         }
     }
     private void AttackCheck()
@@ -248,15 +249,17 @@ public class Player : MonoBehaviour
                 StartCoroutine(SpawnParticleEffectOnObject(slashParticleEffectPrefab, particleEffectPosition));
                 enemyGameObject.GetComponent<Minion>().DamageEnemy(ATK_Power);
                 enemyGameObject.GetComponent<Minion>().Knockback(transform.localScale.x);
+                SoundManager.Instance.PlaySfx("axe_atk_hit");
             } else if (enemyGameObject.tag == "Specimen9")
             {
                 StartCoroutine(SpawnParticleEffectOnObject(slashParticleEffectPrefab, particleEffectPosition));
                 StartCoroutine(SpawnParticleEffectOnObject(chunkParticleEffectPrefab, particleEffectPosition));
                 enemyGameObject.GetComponent<Specimen_9>().DamageEnemy(ATK_Power);
-
+                SoundManager.Instance.PlaySfx("axe_atk_hit");
             } else if (enemyGameObject.tag == "VolleyOrb")
             {
                 enemyGameObject.GetComponent<VolleyOrb>().ReflectOrb();
+                SoundManager.Instance.PlaySfx("explosion");
             }
         }
         if(!infStamina)
@@ -267,6 +270,18 @@ public class Player : MonoBehaviour
     private void UnlockPosition()
     {
         posLock = false;
+    }
+
+    public void PlayAxeATKSound()
+    {
+        float sfxSelector = Random.Range(0.0f, 1.0f);
+        if(sfxSelector >= 0.5f)
+        {
+            SoundManager.Instance.PlaySfx("axe_atk_1");
+        } else
+        {
+            SoundManager.Instance.PlaySfx("axe_atk_2");
+        }
     }
 
     // Keep the prompt's world orientation stable when the player flips via localScale.
@@ -338,6 +353,14 @@ public class Player : MonoBehaviour
                 anim.SetTrigger("damaged");
                 wellnessState = PlayerWellnessState.Invulnerable;
                 StartCoroutine(Invulnerable());
+            }
+            float sfxSelector = Random.Range(0.0f, 1.0f);
+            if(sfxSelector >= 0.5f)
+            {
+                SoundManager.Instance.PlaySfx("take_dmg_1");
+            } else
+            {
+                SoundManager.Instance.PlaySfx("take_dmg_2");
             }
         }
     }

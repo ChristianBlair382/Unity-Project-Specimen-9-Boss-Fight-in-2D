@@ -1997,6 +1997,7 @@ MonoBehaviour:
   playerSpawnTransform: {fileID: 898083954}
   SC: {fileID: 0}
   CC: {fileID: 0}
+  preludeMusic: {fileID: 8300000, guid: 6d41e44097e133c43997266218cf57b9, type: 3}
   playerCharacterPrefab: {fileID: 8334214374344251555, guid: 2d63c7fcba71e334697c0746ca191c51, type: 3}
   playerCharacter: {fileID: 0}
   explosion_Small: {fileID: 0}
@@ -3022,6 +3023,7 @@ MonoBehaviour:
   maxY: 0
   currentX: 0
   currentY: 0
+  cameraShakeThreshold: 2
 --- !u!81 &1938117355
 AudioListener:
   m_ObjectHideFlags: 0

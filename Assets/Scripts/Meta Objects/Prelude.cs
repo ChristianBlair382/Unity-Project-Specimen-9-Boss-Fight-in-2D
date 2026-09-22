@@ -11,6 +11,7 @@ public class Prelude : MonoBehaviour
     //META OBJECTS
     public SceneController SC;
     public CameraController CC;
+    [SerializeField] private AudioClip preludeMusic;
 
     //PREFABS AND INSTANCES
     public GameObject playerCharacterPrefab;
@@ -25,6 +26,7 @@ public class Prelude : MonoBehaviour
         SC = GameObject.Find("Scene_Controller").GetComponent<SceneController>();
         CC = GameObject.Find("Main_Camera").GetComponent<CameraController>();
         SpawnPlayer();
+        SoundManager.Instance.PlayMusic(preludeMusic);
     }
 
     // Update is called once per frame

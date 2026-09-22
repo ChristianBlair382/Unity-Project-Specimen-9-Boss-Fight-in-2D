@@ -48,6 +48,7 @@ public class VolleyOrb : MonoBehaviour
             Vector2 direction = (playerPosition.position - transform.position).normalized;
             rb.AddForce(-direction * (movementSpeed * knockbackMultiplier), ForceMode2D.Impulse);
         }
+        SoundManager.Instance.PlaySfx("volley_orb_deflect");
     }
     private IEnumerator SpawnParticleEffect(GameObject prefab, Vector3 position)
     {
@@ -68,17 +69,18 @@ public class VolleyOrb : MonoBehaviour
         if (other.tag == "Player")
         {
             other.GetComponent<Player>().DamagePlayer(10);
-            Debug.Log("Player hit by Volley Orb.");
+            //Debug.Log("Player hit by Volley Orb.");
         } else if (other.tag == "Specimen9" && currentState == orbState.Reflected)
         {
             Vector3 particleEffectPosition = new Vector3(other.transform.position.x, other.transform.position.y, other.transform.position.z - 1.0f);
             StartCoroutine(SpawnParticleEffectOnObject(explosionEffectPrefab, particleEffectPosition));
-            other.GetComponent<Specimen_9>().DamageEnemy(2);
+            SoundManager.Instance.PlaySfx("explosion");
             if (!other.GetComponent<Specimen_9>().isStunned)
             {
+                other.GetComponent<Specimen_9>().DamageEnemy(2);
                 other.GetComponent<Specimen_9>().Stun();
             }
-            Debug.Log("Specimen_9 hit by reflected Volley Orb and stunned.");
+            //Debug.Log("Specimen_9 hit by reflected Volley Orb and stunned.");
             Destroy(gameObject);
         }
     }

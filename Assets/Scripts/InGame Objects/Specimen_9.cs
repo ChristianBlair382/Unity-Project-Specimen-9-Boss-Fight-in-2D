@@ -153,6 +153,7 @@ public class Specimen_9 : MonoBehaviour
         
         // After minions are defeated, enable volley attack windup particle effects for a few seconds before performing the volley attack
         Instantiate(volleyWindupPrefab, new Vector3(transform.position.x, transform.position.y, transform.position.z - 1.0f), Quaternion.identity);
+        SoundManager.Instance.PlaySfx("specimen9_charge_volley");
         yield return new WaitForSeconds(6.0f);
         if (currentState == InteractionState.Stunned || gameInstance.state == gameState.OVER ) yield break;
         
@@ -224,6 +225,7 @@ public class Specimen_9 : MonoBehaviour
         for (int i = 0; i < 3; i++)
         {
             Instantiate(volleyOrbPrefab, transform.position, Quaternion.identity);
+            SoundManager.Instance.PlaySfx("specimen9_shoot_volley");
             yield return new WaitForSeconds(0.5f);
         }
     }
@@ -432,11 +434,12 @@ public class Specimen_9 : MonoBehaviour
         {
             Instantiate(explosionParticleEffectPrefab, ParticleEffectOrientationTransform, Quaternion.identity);
             StartCoroutine(SpawnParticleEffect(chunkExplosionPrefab, ParticleEffectOrientationTransform));
+            SoundManager.Instance.PlaySfx("explosion");
             spriteRend.color = new Color(1.0f, 0.0f, 0.0f, 1.0f - (i * 0.1f));
             yield return new WaitForSeconds(0.3f);
         }
         yield return new WaitForSeconds(0.5f);
         Destroy(gameObject);
-        Debug.Log("Specimen 9 Defeated!");
+        //Debug.Log("Specimen 9 Defeated!");
     }
 }

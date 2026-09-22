@@ -42,6 +42,7 @@ public class CeilingProjectile : MonoBehaviour
         } else if(collision.gameObject.CompareTag("Floor"))
         {
             Instantiate(explosionPrefab, new Vector3(transform.position.x, transform.position.y, -2.1f), Quaternion.identity);
+            SoundManager.Instance.PlaySfx("ceiling_projectile_break");
             Destroy(gameObject);
         }
     }

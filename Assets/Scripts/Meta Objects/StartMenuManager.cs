@@ -31,6 +31,8 @@ public class StartMenuManager : MonoBehaviour
         Specimen9Eye1.enabled = false;
         Specimen9Eye2.enabled = false;
         StartCoroutine(StartAnimation());
+        SoundManager.Instance.SetMusicVolume(0.5f);
+        SoundManager.Instance.SetSfxVolume(0.6f);
     }
     void Update()
     {
@@ -42,6 +44,7 @@ public class StartMenuManager : MonoBehaviour
     }
     public void OnStartButton ()
     {
+        SoundManager.Instance.PlaySfx("blip_2");
         startMenuCanvas.enabled = false;
         creditsCanvas.enabled = false;
         // Switch the portrait to Specimen 9's portrait before loading the next scene
@@ -53,16 +56,19 @@ public class StartMenuManager : MonoBehaviour
     }
     public void OnCreditsButton ()
     {
+        SoundManager.Instance.PlaySfx("blip_2");
         startMenuCanvas.enabled = false;
         creditsCanvas.enabled = true;
     }
     public void OnBackButton ()
     {
+        SoundManager.Instance.PlaySfx("blip_2");
         startMenuCanvas.enabled = true;
         creditsCanvas.enabled = false;
     }
     public void OnQuitButton ()
     {
+        SoundManager.Instance.PlaySfx("blip_2");
         PlayerPrefs.DeleteAll();
         Application.Quit();
     }

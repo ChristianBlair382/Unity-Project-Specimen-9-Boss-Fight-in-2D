@@ -3889,6 +3889,7 @@ MonoBehaviour:
   TTDGameOverSplashEffect: {fileID: 1102056811}
   ceilingCrumbleParticleEffect: {fileID: 0}
   TTDGameOverSplashEffectResetPoint: {fileID: 310751484}
+  bossMusic: {fileID: 8300000, guid: f007fa9a53c0a554dbb4f31a2125f01e, type: 3}
   playerCharacterPrefab: {fileID: 8334214374344251555, guid: 2d63c7fcba71e334697c0746ca191c51, type: 3}
   playerCharacter: {fileID: 0}
   volleyOrbPrefab: {fileID: 7343090696600060508, guid: 4e3413bc353482b41af6957b12c84742, type: 3}

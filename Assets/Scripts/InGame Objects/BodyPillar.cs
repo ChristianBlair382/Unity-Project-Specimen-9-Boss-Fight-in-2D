@@ -63,6 +63,7 @@ public class BodyPillar : MonoBehaviour
             //Upon calling Rise, have all sprites stretched horizontally to indicate emergence
             StartCoroutine(StretchPillar(new Vector2(0.1f, 1.0f), new Vector2(1.0f, 1.0f), 0.5f));
         }
+        SoundManager.Instance.PlaySfx("body_pillar_spawn");
     }
     private IEnumerator StretchPillar(Vector2 startScale, Vector2 targetScale, float duration)
     {
