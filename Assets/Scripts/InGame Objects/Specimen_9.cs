@@ -69,6 +69,7 @@ public class Specimen_9 : MonoBehaviour
             if (currentState == InteractionState.Stunned && currentWellness == WellnessState.Vulnerable)
             {
                 stunTimer -= Time.deltaTime;
+                animator.SetFloat("stun_timer", stunTimer);
                 if (stunTimer <= 0)
                 {
                     StartCoroutine(RecoveryTransition(transitionDuration));
@@ -153,8 +154,8 @@ public class Specimen_9 : MonoBehaviour
         
         // After minions are defeated, enable volley attack windup particle effects for a few seconds before performing the volley attack
         Instantiate(volleyWindupPrefab, new Vector3(transform.position.x, transform.position.y, transform.position.z - 1.0f), Quaternion.identity);
-        SoundManager.Instance.PlaySfx("specimen9_charge_volley");
-        yield return new WaitForSeconds(6.0f);
+        StartCoroutine(PlayVolleyWindupSFX());
+        yield return new WaitForSeconds(5.0f);
         if (currentState == InteractionState.Stunned || gameInstance.state == gameState.OVER ) yield break;
         
         // Perform volley attack
@@ -169,24 +170,12 @@ public class Specimen_9 : MonoBehaviour
     }
     private void PerformAttackSequence()
     {
-        // Define a sequence of attacks to perform during the attack phase
-        // This can be customized as needed
-        //stateTimer -= Time.deltaTime;
-        //if (stateTimer <= 0)
-        //{
         if (currentState == InteractionState.Waiting)
         {
             currentState = InteractionState.Attacking;
-            //stateTimer = attackDuration; // Duration of attack phase
             //When attack phase starts, perform a series of attacks in a specific pattern
             StartCoroutine(AttackCycle());
         }
-        //else if (currentState == InteractionState.Attacking)
-        //{
-        //    currentState = InteractionState.Waiting;
-        //    stateTimer = waitDuration;
-        //}
-        //}
     }
 
     private IEnumerator PerformAttack(int attackType)
@@ -295,13 +284,17 @@ public class Specimen_9 : MonoBehaviour
     {
         // Called when Specimen 9 is hit by a reflected volley orb
         StartCoroutine(StunTransition(transitionDuration));
-        stunTimer = stunDuration;
+        
         isStunned = true;
         currentState = InteractionState.Stunned;
         currentWellness = WellnessState.Vulnerable;
         bc.size = new Vector2(1, 0.692f);
         bc.offset = new Vector2(0f, 0f);
+
+        stunTimer = stunDuration;
+        animator.SetFloat("stun_timer", stunTimer);
         animator.SetTrigger("stunned");
+        
         player.GetComponent<Player>().infStamina = true;
         
         // Disable all disruption screen effects and trigger hit indicator
@@ -441,5 +434,14 @@ public class Specimen_9 : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         Destroy(gameObject);
         //Debug.Log("Specimen 9 Defeated!");
+    }
+
+    private IEnumerator PlayVolleyWindupSFX()
+    {
+        for(int i = 0; i < 4; i++)
+        {
+            SoundManager.Instance.PlaySfx("specimen9_charge_volley");
+            yield return new WaitForSeconds(1.0f);
+        }
     }
 }

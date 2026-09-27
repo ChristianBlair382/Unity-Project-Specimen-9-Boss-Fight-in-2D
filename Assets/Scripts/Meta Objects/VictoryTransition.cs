@@ -9,4 +9,9 @@ public class VictoryTransition : MonoBehaviour
     {
         animator = GetComponent<Animator>();
     }
+
+    public void PlaySFX()
+    {
+        SoundManager.Instance.PlaySfx("slam");
+    }
 }

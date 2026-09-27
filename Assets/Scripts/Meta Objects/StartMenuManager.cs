@@ -7,9 +7,11 @@ public class StartMenuManager : MonoBehaviour
 {
     public Canvas
         startMenuCanvas,
-        creditsCanvas;
+        creditsCanvas,
+        soundSettingsCanvas;
     public Button
         startButton,
+        soundSettingsButton,
         quitButton,
         creditsButton,
         backButton;
@@ -26,13 +28,12 @@ public class StartMenuManager : MonoBehaviour
         TTDOverlayRigidbody = TTDOverlay.GetComponent<Rigidbody2D>();
         startMenuCanvas.enabled = false;
         creditsCanvas.enabled = false;
+        soundSettingsCanvas.enabled = false;
         Specimen9Portrait1.enabled = true;
         Specimen9Portrait2.enabled = false;
         Specimen9Eye1.enabled = false;
         Specimen9Eye2.enabled = false;
         StartCoroutine(StartAnimation());
-        SoundManager.Instance.SetMusicVolume(0.5f);
-        SoundManager.Instance.SetSfxVolume(0.6f);
     }
     void Update()
     {
@@ -60,10 +61,17 @@ public class StartMenuManager : MonoBehaviour
         startMenuCanvas.enabled = false;
         creditsCanvas.enabled = true;
     }
+    public void OnSoundSettingsButton ()
+    {
+        SoundManager.Instance.PlaySfx("blip_2");
+        soundSettingsCanvas.enabled = true;
+        startMenuCanvas.enabled = false;
+    }
     public void OnBackButton ()
     {
         SoundManager.Instance.PlaySfx("blip_2");
         startMenuCanvas.enabled = true;
+        soundSettingsCanvas.enabled = false;
         creditsCanvas.enabled = false;
     }
     public void OnQuitButton ()

@@ -27,6 +27,7 @@ public class HandWave : MonoBehaviour
     private void Emerge()
     {
         rb.velocity = new Vector2(0, movementSpeed);
+        PlaySFX();
     }
     private void Retract()
     {
@@ -66,6 +67,18 @@ public class HandWave : MonoBehaviour
         yield return new WaitForSeconds(waitDuration);
         Destroy(dangerZoneInstance);
         StartCoroutine(EmergeAndRetract(stallDuration));
+    }
+
+    private void PlaySFX()
+    {
+        float sfxSelector = Random.Range(0.0f, 1.0f);
+        if(sfxSelector >= 0.5f)
+        {
+            SoundManager.Instance.PlaySfx("axe_atk_1");
+        } else
+        {
+            SoundManager.Instance.PlaySfx("axe_atk_2");
+        }
     }
 
     // Collision Detection

@@ -57,6 +57,10 @@ public class Game : MonoBehaviour
     public GameObject ceilingCrumbleParticleEffect;
     public GameObject TTDGameOverSplashEffectResetPoint;
 
+    [Header("Pause Screen Elements")]
+    public GameObject DefaultButtons;
+    public GameObject SoundSettingsButtons;
+
     [Header("Music Tracks")]
     [SerializeField] private AudioClip bossMusic;
 
@@ -281,6 +285,7 @@ public class Game : MonoBehaviour
         VictoryText.enabled = false;
         GameOverButtons.enabled = false;
         SC.ReloadCurrentScene();
+        SoundManager.Instance.StopMusic();
         SoundManager.Instance.PlaySfx("blip_2");
     }
 
@@ -292,14 +297,19 @@ public class Game : MonoBehaviour
         VictoryText.enabled = false;
         GameOverButtons.enabled = false;
         SC.LoadFirstScene();
+        SoundManager.Instance.StopMusic();
         SoundManager.Instance.PlaySfx("blip_2");
     }
 
     public void OnPauseButton()
     {
         PauseButton.SetActive(false);
+
         GUICanvas.enabled = false;
         PauseCanvas.enabled = true;
+        DefaultButtons.SetActive(true);
+        SoundSettingsButtons.SetActive(false);
+
         playerScript.movementLocked = true;
         Time.timeScale = 0;
         state = gameState.PAUSED;
@@ -309,11 +319,29 @@ public class Game : MonoBehaviour
     public void OnResumeButton()
     {
         PauseButton.SetActive(true);
+
         GUICanvas.enabled = true;
+        DefaultButtons.SetActive(false);
+        SoundSettingsButtons.SetActive(false);
         PauseCanvas.enabled = false;
+
         playerScript.movementLocked = false;
         Time.timeScale = 1;
         state = gameState.PLAYING;
+        SoundManager.Instance.PlaySfx("blip_2");
+    }
+
+    public void OnSoundSettingsButton()
+    {
+        DefaultButtons.SetActive(false);
+        SoundSettingsButtons.SetActive(true);
+        SoundManager.Instance.PlaySfx("blip_2");
+    }
+
+    public void OnBackButton()
+    {
+        SoundSettingsButtons.SetActive(false);
+        DefaultButtons.SetActive(true);
         SoundManager.Instance.PlaySfx("blip_2");
     }
 
@@ -357,11 +385,12 @@ public class Game : MonoBehaviour
         CC.StartCameraShake(6f, 0.05f);
         ceilingCrumbleParticleEffect = Instantiate(ceilingCrumbleParticleEffectPrefab, new Vector3(CC.currentX, CC.currentY + 5f, -9f), Quaternion.identity);
         playerScript.LookUpAnim();
+        StartCoroutine(PlayRumbleSFX());
         yield return new WaitForSeconds(5.0f);
         VictoryTransition.animator.SetTrigger("begin");
 
         //Show Victory Screen Assest
-        yield return new WaitForSeconds(1.0f);
+        yield return new WaitForSeconds(3.0f);
         VictoryText.enabled = true;
         SoundManager.Instance.PlaySfx("blip_1");
         yield return new WaitForSeconds(1.0f);
@@ -408,16 +437,35 @@ public class Game : MonoBehaviour
 
     private IEnumerator PlayFailureTransition()
     {
-        //Show Game Over Dimming Canvas and Text
+        StartCoroutine(EnableFailureSFX());
         yield return new WaitForSeconds(8.0f);
         GameOverCanvas.SetTrigger("begin");
         yield return new WaitForSeconds(1.0f);
         FailureText.enabled = true;
-        SoundManager.Instance.PlaySfx("blip_1");
 
         //Show Game Over Buttons
         yield return new WaitForSeconds(3.0f);
         GameOverButtons.enabled = true;
+    }
+
+    private IEnumerator PlayRumbleSFX()
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            SoundManager.Instance.PlaySfx("rumble");
+            yield return new WaitForSeconds(1.0f);
+        }
+    }
+
+    private IEnumerator EnableFailureSFX()
+    {
+        while(true)
+        {
+            SoundManager.Instance.PlaySfx("failure_sfx_1");
+            yield return new WaitForSeconds(0.5f);
+            SoundManager.Instance.PlaySfx("specimen9_laugh");
+            yield return new WaitForSeconds(1.0f);
+        }
     }
 
     private void PlayFailureEffects()
