@@ -12,12 +12,17 @@ public class DialogueManager : MonoBehaviour
     public TextMeshProUGUI characterName;
     public TextMeshProUGUI dialogueArea;
 
-    private Queue<DialogueLine> dialogueLines = new Queue<DialogueLine>();
     private Player playerRef;
     private Coroutine dialogueStartRoutine;
     private Coroutine typingRoutine;
+    private Dialogue activeDialogue;
+    private DialogueLine currentLine;
+    private int nextLineIndex;
     private bool isTyping = false;
+    private bool waitingForChoice = false;
+    private bool waitingToShowChoices = false;
     private string currentLineText = "";
+    private readonly List<GameObject> activeChoiceButtons = new List<GameObject>();
 
     public bool isDialogueActive = false;
     public float textSpeed = 0.05f;
@@ -25,6 +30,7 @@ public class DialogueManager : MonoBehaviour
     [SerializeField] private RectTransform dialogueBoxClickArea;
     [SerializeField] private Canvas dialogueCanvas;
     [SerializeField] private Image advanceDialogueIndicator;
+    [SerializeField] private RectTransform responseOptionsContainer;
 
     private void Update()
     {
@@ -39,9 +45,20 @@ public class DialogueManager : MonoBehaviour
             {
                 CompleteCurrentLineInstantly();
             }
-            else
+            else if(waitingToShowChoices)
             {
-                DisplayNextLine();
+                ShowResponseOptions(currentLine.choices);
+            }
+            else if(!waitingForChoice)
+            {
+                if(currentLine != null && currentLine.endsDialogue)
+                {
+                    EndDialogue();
+                }
+                else
+                {
+                    DisplayNextLine();
+                }
             }
         }
     }
@@ -74,7 +91,14 @@ public class DialogueManager : MonoBehaviour
             return;
         }
 
+        if(!IsDialogueValid(dialogue))
+        {
+            return;
+        }
+
         isDialogueActive = true;
+        activeDialogue = dialogue;
+        nextLineIndex = 0;
 
         ResolvePlayerReference();
         ResetDialogueVisuals();
@@ -89,12 +113,6 @@ public class DialogueManager : MonoBehaviour
             playerRef.SetMovementLocked(true);
         }
 
-        dialogueLines.Clear();
-        foreach (DialogueLine line in dialogue.lines)
-        {
-            dialogueLines.Enqueue(line);
-        }
-
         if(dialogueStartRoutine != null)
         {
             StopCoroutine(dialogueStartRoutine);
@@ -105,23 +123,31 @@ public class DialogueManager : MonoBehaviour
 
     public void DisplayNextLine()
     {
-        if (dialogueLines.Count == 0)
+        if(waitingForChoice)
+        {
+            return;
+        }
+
+        if(activeDialogue == null || nextLineIndex >= activeDialogue.lines.Count)
         {
             EndDialogue();
             return;
         }
 
+        waitingForChoice = false;
+        ClearResponseOptions();
         SetAdvanceIndicatorVisible(false);
 
-        DialogueLine line = dialogueLines.Dequeue();
+        currentLine = activeDialogue.lines[nextLineIndex];
+        nextLineIndex++;
 
-        if(line.character != null)
+        if(currentLine.character != null)
         {
-            characterName.text = line.character.name;
+            characterName.text = currentLine.character.name;
             if(characterImage != null)
             {
-                characterImage.sprite = line.character.image;
-                characterImage.enabled = line.character.image != null;
+                characterImage.sprite = currentLine.character.image;
+                characterImage.enabled = currentLine.character.image != null;
             }
         }
         else
@@ -139,7 +165,7 @@ public class DialogueManager : MonoBehaviour
             StopCoroutine(typingRoutine);
         }
 
-        typingRoutine = StartCoroutine(TypeLine(line.line));
+        typingRoutine = StartCoroutine(TypeLine(currentLine.line));
     }
 
     IEnumerator TypeLine(string line)
@@ -155,7 +181,7 @@ public class DialogueManager : MonoBehaviour
 
         isTyping = false;
         typingRoutine = null;
-        SetAdvanceIndicatorVisible(true);
+        FinishDisplayingLine();
     }
 
     private IEnumerator BeginDialogueAfterOpenAnimation()
@@ -193,6 +219,10 @@ public class DialogueManager : MonoBehaviour
 
         isTyping = false;
         currentLineText = "";
+        currentLine = null;
+        activeDialogue = null;
+        waitingForChoice = false;
+        waitingToShowChoices = false;
 
         if(playerRef != null)
         {
@@ -222,6 +252,8 @@ public class DialogueManager : MonoBehaviour
 
     private void ResetDialogueVisuals()
     {
+        ClearResponseOptions();
+
         if(characterImage != null)
         {
             characterImage.sprite = null;
@@ -267,7 +299,238 @@ public class DialogueManager : MonoBehaviour
 
         dialogueArea.text = currentLineText;
         isTyping = false;
+        typingRoutine = null;
+        FinishDisplayingLine();
+    }
+
+    private void FinishDisplayingLine()
+    {
+        if(currentLine != null && currentLine.choices != null && currentLine.choices.Count > 0)
+        {
+            waitingToShowChoices = true;
+            SetAdvanceIndicatorVisible(true);
+            return;
+        }
+
         SetAdvanceIndicatorVisible(true);
+    }
+
+    private void ShowResponseOptions(List<DialogueChoice> choices)
+    {
+        SetAdvanceIndicatorVisible(false);
+        dialogueArea.text = "";
+
+        RectTransform optionsContainer = GetResponseOptionsContainer();
+        if(optionsContainer == null)
+        {
+            Debug.LogError("Dialogue choices cannot be shown because no UI parent is available.", this);
+            EndDialogue();
+            return;
+        }
+
+        waitingToShowChoices = false;
+        waitingForChoice = true;
+        SetAdvanceIndicatorVisible(false);
+        dialogueArea.text = "";
+        optionsContainer.gameObject.SetActive(true);
+
+        for(int i = 0; i < choices.Count; i++)
+        {
+            DialogueChoice choice = choices[i];
+            GameObject choiceObject = CreateResponseButton(optionsContainer, choice, i);
+            activeChoiceButtons.Add(choiceObject);
+        }
+    }
+
+    private RectTransform GetResponseOptionsContainer()
+    {
+        if(responseOptionsContainer != null)
+        {
+            return responseOptionsContainer;
+        }
+
+        RectTransform parent = dialogueBoxClickArea;
+        if(parent == null && dialogueArea != null)
+        {
+            parent = dialogueArea.rectTransform.parent as RectTransform;
+        }
+
+        if(parent == null && dialogueCanvas != null)
+        {
+            parent = dialogueCanvas.transform as RectTransform;
+        }
+
+        if(parent == null)
+        {
+            return null;
+        }
+
+        GameObject containerObject = new GameObject(
+            "Dialogue Response Options",
+            typeof(RectTransform),
+            typeof(VerticalLayoutGroup));
+        responseOptionsContainer = containerObject.GetComponent<RectTransform>();
+        responseOptionsContainer.SetParent(parent, false);
+        containerObject.layer = parent.gameObject.layer;
+        responseOptionsContainer.anchorMin = new Vector2(0.5f, 0.5f);
+        responseOptionsContainer.anchorMax = new Vector2(0.5f, 0.5f);
+        responseOptionsContainer.pivot = new Vector2(0.5f, 0.5f);
+        responseOptionsContainer.anchoredPosition = new Vector2(-70f, 0f);
+        responseOptionsContainer.sizeDelta = new Vector2(900f, 260f);
+
+        VerticalLayoutGroup layout = containerObject.GetComponent<VerticalLayoutGroup>();
+        layout.padding = new RectOffset(8, 8, 8, 8);
+        layout.spacing = 8f;
+        layout.childAlignment = TextAnchor.MiddleCenter;
+        layout.childControlWidth = true;
+        layout.childControlHeight = true;
+        layout.childForceExpandWidth = true;
+        layout.childForceExpandHeight = false;
+        containerObject.SetActive(false);
+
+        return responseOptionsContainer;
+    }
+
+    private GameObject CreateResponseButton(RectTransform parent, DialogueChoice choice, int index)
+    {
+        GameObject buttonObject = new GameObject(
+            "Dialogue Choice " + (index + 1),
+            typeof(RectTransform),
+            typeof(Image),
+            typeof(Button),
+            typeof(LayoutElement));
+        buttonObject.transform.SetParent(parent, false);
+        buttonObject.layer = parent.gameObject.layer;
+
+        Image background = buttonObject.GetComponent<Image>();
+        background.color = new Color(0.12f, 0.12f, 0.12f, 0.92f);
+
+        Button button = buttonObject.GetComponent<Button>();
+        button.targetGraphic = background;
+        button.onClick.AddListener(() => SelectChoice(choice));
+
+        LayoutElement layoutElement = buttonObject.GetComponent<LayoutElement>();
+        layoutElement.preferredHeight = 52f;
+
+        GameObject labelObject = new GameObject(
+            "Label",
+            typeof(RectTransform),
+            typeof(TextMeshProUGUI));
+        labelObject.transform.SetParent(buttonObject.transform, false);
+        labelObject.layer = buttonObject.layer;
+
+        RectTransform labelRect = labelObject.GetComponent<RectTransform>();
+        labelRect.anchorMin = Vector2.zero;
+        labelRect.anchorMax = Vector2.one;
+        labelRect.offsetMin = new Vector2(12f, 4f);
+        labelRect.offsetMax = new Vector2(-12f, -4f);
+
+        TextMeshProUGUI label = labelObject.GetComponent<TextMeshProUGUI>();
+        if(dialogueArea != null)
+        {
+            label.font = dialogueArea.font;
+        }
+        label.fontSize = 30f;
+        label.enableAutoSizing = true;
+        label.fontSizeMin = 18f;
+        label.fontSizeMax = 30f;
+        label.color = Color.white;
+        label.alignment = TextAlignmentOptions.MidlineLeft;
+        label.text = choice.response;
+        label.raycastTarget = false;
+
+        return buttonObject;
+    }
+
+    private void SelectChoice(DialogueChoice choice)
+    {
+        if(!waitingForChoice || choice == null)
+        {
+            return;
+        }
+
+        waitingForChoice = false;
+        ClearResponseOptions();
+        if(choice.onSelected != null)
+        {
+            choice.onSelected.Invoke();
+        }
+
+        if(choice.nextLineIndex == -1)
+        {
+            EndDialogue();
+            return;
+        }
+
+        if(activeDialogue == null ||
+           choice.nextLineIndex < 0 ||
+           choice.nextLineIndex >= activeDialogue.lines.Count)
+        {
+            Debug.LogError("Dialogue choice points to an invalid line index: " + choice.nextLineIndex, this);
+            EndDialogue();
+            return;
+        }
+
+        nextLineIndex = choice.nextLineIndex;
+        DisplayNextLine();
+    }
+
+    private void ClearResponseOptions()
+    {
+        for(int i = 0; i < activeChoiceButtons.Count; i++)
+        {
+            GameObject choiceButton = activeChoiceButtons[i];
+            if(choiceButton != null)
+            {
+                Destroy(choiceButton);
+            }
+        }
+        activeChoiceButtons.Clear();
+
+        if(responseOptionsContainer != null)
+        {
+            responseOptionsContainer.gameObject.SetActive(false);
+        }
+    }
+
+    private bool IsDialogueValid(Dialogue dialogue)
+    {
+        if(dialogue == null || dialogue.lines == null || dialogue.lines.Count == 0)
+        {
+            Debug.LogError("Cannot start dialogue because it has no lines.", this);
+            return false;
+        }
+
+        for(int lineIndex = 0; lineIndex < dialogue.lines.Count; lineIndex++)
+        {
+            DialogueLine line = dialogue.lines[lineIndex];
+            if(line == null)
+            {
+                Debug.LogError("Dialogue contains a null line at index " + lineIndex + ".", this);
+                return false;
+            }
+
+            if(line.choices == null)
+            {
+                continue;
+            }
+
+            for(int choiceIndex = 0; choiceIndex < line.choices.Count; choiceIndex++)
+            {
+                DialogueChoice choice = line.choices[choiceIndex];
+                if(choice == null ||
+                   choice.nextLineIndex < -1 ||
+                   choice.nextLineIndex >= dialogue.lines.Count)
+                {
+                    Debug.LogError(
+                        "Dialogue choice at line " + lineIndex + " has an invalid target line index.",
+                        this);
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     private void SetAdvanceIndicatorVisible(bool isVisible)
